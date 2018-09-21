@@ -1,0 +1,23 @@
+{
+    "USER1" : { 
+        "weekday" : {
+            "traffic_check" : {"Hour":7, "Min":59},
+            "find_info" : {"Hour":10, "Min":0}
+        },
+        "weekend" : {
+            "traffic_check" : {"Hour":1, "Min":10},
+            "find_info" : {"Hour":2, "Min":0}
+        }
+    },
+    "USER2" : { 
+        "weekday" : {
+            "traffic_check" : {"Hour":7, "Min":59},
+            "find_info" : {"Hour":10, "Min":0}
+        },
+        "weekend" : {
+            "traffic_check" : {"Hour":1, "Min":10},
+            "find_info" : {"Hour":2, "Min":0}
+        }
+    }
+        
+}

@@ -1,0 +1,54 @@
+{
+    "SK_NUGU" : {
+        "traffic_check" : {
+            "Server" : "123.234.23.",
+            "PortRange" : [300,301],
+            "UPDN" : ["UP","DN","UP","DN"],
+            "time" : [1,2,3,4],
+            "packet" : [1,1,2,3]
+        },
+        "find_info" : {
+            "Server" : "143.234.223.",
+            "PortRange" : [800,1900],
+            "UPDN" : ["UP","DN","UP","DN"],
+            "time" : [1,2,3,4],
+            "packet" : [1,2,2,5]
+        },
+        "weather_check" : {
+            "Server" : "133.234.223.",
+            "PortRange" : [400,1900],
+            "UPDN" : ["UP","DN","UP","DN"],
+            "time" : [1,2,3,4],
+            "packet" : [1,2,2,5]
+        },
+        "firmware_check" : {
+            "Server" : "132.214.243.231",
+            "PortRange" : [1000,1900],
+            "UPDN" : ["UP","DN"],
+            "time" : [1,2],
+            "packet" : [1,2],
+            "interval1" : 15,
+            "interval2" : "min"
+            
+        }
+
+        
+    },
+    "KT_GINI" : {
+        "traffic_check" : {
+            "Server" : "123.234.23.",
+            "PortRange" : [300,400],
+            "UPDN" : ["UP","DN","UP","DN"],
+            "time" : [1,2,3,4],
+            "packet" : [1,1,2,3]
+        },
+        "find_info" : {
+            "Server" : "143.234.223.",
+            "PortRange" : [800,1900],
+            "UPDN" : ["UP","DN","UP","DN"],
+            "time" : [1,2,3,4],
+            "packet" : [1,2,2,5]
+        }
+    }
+
+}
