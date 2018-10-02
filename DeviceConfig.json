@@ -42,7 +42,7 @@
         },
         "firmware_check" : {
             "Server" : "132.214.243.231",
-            "PortRange" : [1000,1900],
+            "PortRange" : [1000,1001],
             "UPDN" : ["UP","DN"],
             "time" : [1,2],
             "packet" : [1,2],

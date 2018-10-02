@@ -4,7 +4,12 @@ class user_type:
     def __init__(self):
         self.time_action = []
     def action_add(self,time_H,time_M,action,day_end):
-        self.time_action.append([time_H,time_M,action,day_end])
+        mean_time = time_H*24 + time_M
+        std = 5^2
+        _g_sample = np.round(np.random.normal(0, std, 1))
+        g_time_H = int((mean_time +_g_sample)/24)
+        g_time_M = (mean_time +_g_sample) - 24*g_time_H
+        self.time_action.append([g_time_H,g_time_M,action,day_end])
     def time_action(self):
         return self.time_action
 
@@ -13,8 +18,8 @@ class Home():
         self.IP = IP
         self.PORT_RANGE = PORT_RANGE
 
-    def date_setting(self, today_time):
-        self.today_time = today_time
+    # def date_setting(self, today_time):
+    #     self.today_time = today_time
 
     def device_setting(self, device_list):
         with open('DeviceConfig.json','r') as f:
@@ -42,9 +47,10 @@ class Home():
                             action_M = action_root[key]['Min']
                             action = key
                             user_config.action_add(action_H, action_M, action, _dayend)
-                    all_user.append(user_config)
+                        all_user.append(user_config)
             return all_user
         self.user_list = make_user_list()
+
 
 
     def packet_generate(self, from_date, to_date):
@@ -53,7 +59,6 @@ class Home():
         self.time_gap = to_date - from_date
         # make all day routine
         user_action_making = []
-        
         for i, user in enumerate(self.user_list):
             weekday_user_pattern = []
             weekend_user_pattern = []
@@ -62,6 +67,7 @@ class Home():
                     weekday_user_pattern.append(_action_list)
                 else:
                     weekend_user_pattern.append(_action_list)
+
             action_time = self.from_date
             while action_time <= self.to_date:
                 action_de = action_time.weekday()
@@ -113,11 +119,11 @@ class Home():
                     srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
                     dstport = np.random.randint(function['PortRange'][0],function['PortRange'][1],size = 1000)
 
-                    news_request = make_function(self.IP, srcport[i], 
+                    new_task = make_function(self.IP, srcport[i], 
                                                 function['Server']+str(np.random.randint(0,256)), 
                                                 dstport[i], 
                                                 function['UPDN'], function['time'], function['packet'])       
-                    device_packet_dict[function_name] = news_request
+                    device_packet_dict[function_name] = new_task
                     # pprint(device_packet_dict)
                     i += 1
             try:
@@ -147,7 +153,8 @@ class Home():
         return all_packet_list
     
 def home_set():
-    Home_list = []
+    Home_class_list = []
+    Home_packet_list = []
     with open('HomeConfig.json','r') as f:
         home_config = json.load(f)
     for k1 in home_config:
@@ -165,26 +172,21 @@ def home_set():
         Device_list = home_config[k1]['Devices']
         User_list = home_config[k1]['User_setting']
         make_home = Home(IP,PortRange)
-        make_home.date_setting(today_time)   
         make_home.device_setting(Device_list)
         make_home.user_setting(User_list)
-        Home_list.append(make_home.packet_generate(from_date, to_date))
-    return Home_list
+        Home_class_list.append(make_home)
+        Home_packet_list.append(make_home.packet_generate(from_date, to_date))
+    return Home_class_list, Home_packet_list
 
 
 
 if __name__ == "__main__":
-
-    # today_time = datetime(2018,1,1,0,0,0)
-    
-    home_list = home_set()
-    
-    home1 = home_list[0]
+    home_list, home_packet_list = home_set()
+    home1 = home_packet_list[0]
     home1 = sum(home1, [])
-
     import pandas as pd
-    df = pd.DataFrame(home1, columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE"])
-    df.to_csv("Testing.csv",index=False)
-    print(df)
+    df = pd.DataFrame(home1, columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE", "Session_id"])
+    df.to_csv("Testing.log",index=False)
+    # print(df)
     
  
