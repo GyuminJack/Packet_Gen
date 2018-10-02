@@ -25,6 +25,7 @@ class Home():
             if k in device_list:
                 self.selected_device_dict[k] = self.all_device_dict[k]
 
+
     def user_setting(self,costum_user_list):
         def make_user_list():
             with open('UserConfig.json','r') as f:
@@ -41,9 +42,10 @@ class Home():
                             action_M = action_root[key]['Min']
                             action = key
                             user_config.action_add(action_H, action_M, action, _dayend)
-                        all_user.append(user_config)
+                    all_user.append(user_config)
             return all_user
         self.user_list = make_user_list()
+
 
     def packet_generate(self, from_date, to_date):
         self.from_date = from_date
@@ -60,24 +62,41 @@ class Home():
                     weekday_user_pattern.append(_action_list)
                 else:
                     weekend_user_pattern.append(_action_list)
-                    
             action_time = self.from_date
-            if action_time.weekday() < 5:
-                user_pattern = weekday_user_pattern
-                for hour, min, action, _  in user_pattern:
-                    action_time = datetime(action_time.year, action_time.month,
-                                            action_time.day, hour, min)
-                    while action_time < self.to_date:
-                        user_action_making.append([action_time,action])
-                        action_time += timedelta(days=1)                    
-            elif action_time.weekday() >= 5:
-                user_pattern = weekend_user_pattern
-                for hour, min, action, _  in user_pattern:
-                    action_time = datetime(action_time.year, action_time.month,
-                                            action_time.day, hour, min)
-                    while action_time < self.to_date:
-                        user_action_making.append([action_time,action])
-                        action_time += timedelta(days=1)                       
+            while action_time <= self.to_date:
+                action_de = action_time.weekday()
+                if action_de < 5:
+                    for hour, min, action, _ in weekday_user_pattern:
+                        action_time = datetime(action_time.year, action_time.month,
+                                                action_time.day, hour, min)
+                        user_action_making.append([action_time, action])
+                    action_time += timedelta(days=1)
+                else:
+                    for hour, min, action, _ in weekend_user_pattern:
+                        action_time = datetime(action_time.year, action_time.month,
+                                                action_time.day, hour, min)
+                        user_action_making.append([action_time, action])
+                    action_time += timedelta(days=1)
+
+            # action_time = self.from_date
+            # for _action_list in user.time_action:
+            #     if action_time.weekday() < 5:
+            #         user_pattern = weekday_user_pattern
+            #         for hour, min, action, _  in user_pattern:
+            #             action_time = datetime(action_time.year, action_time.month,
+            #                                     action_time.day, hour, min)
+            #             while action_time < self.to_date:
+            #                 user_action_making.append([action_time,action])
+            #                 action_time += timedelta(days=1)
+            #     elif action_time.weekday() >= 5:
+            #         user_pattern = weekend_user_pattern
+            #         for hour, min, action, _  in user_pattern:
+            #             action_time = datetime(action_time.year, action_time.month,
+            #                                     action_time.day, hour, min)
+            #             while action_time < self.to_date:
+            #                 user_action_making.append([action_time,action])
+            #                 action_time += timedelta(days=1)
+
         all_user_pattern = user_action_making
 
 
@@ -162,6 +181,7 @@ if __name__ == "__main__":
     
     home1 = home_list[0]
     home1 = sum(home1, [])
+
     import pandas as pd
     df = pd.DataFrame(home1, columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE"])
     df.to_csv("Testing.csv",index=False)
