@@ -137,8 +137,6 @@ class Home():
         for device_name in self.selected_device_dict:
             if "firmware_check" in in_home_device_set[device_name]:
                 firmware_check = in_home_device_set[device_name]['firmware_check']
-                # srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
-                # dstport = np.random.randint(firmware_check['PortRange'][0],firmware_check['PortRange'][1],size = 1000)
                 firmware_packet = make_function(self.IP, self.PORT_RANGE, 
                                                 firmware_check['Server'], 
                                                 firmware_check['PortRange'], 

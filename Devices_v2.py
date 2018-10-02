@@ -43,7 +43,7 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
     global SESSION_ID_RANGE
     
     itertime_packet = []
-    interval_criterion = {"hour":24 ,"min":60, "seconds":1}
+    interval_criterion = {"hour":24*60 ,"min":60, "seconds":1}
     change_sec = interval1 * interval_criterion[interval2]
     time_gap = to_time-from_time
     execute_times = (time_gap / change_sec).seconds
@@ -65,28 +65,4 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
         itertime_packet.append(action)
         j += 1
     return itertime_packet
-
-if __name__ == "__main__":
-    HomeIP = "192.168.0.1"
-    HomePort_RANGE = [100,1044]
-    
-    SK_IP = "124.234.23.2"
-    SK_PORT_RANGE = [300,400]
-    udlist = ["UP","DN","UP","DN"]
-    time_list = [1, 2, 3, 5]
-    packet_list = [1, 1, 2, 3]
-
-
-    news_request = make_function(HomeIP, HomePort_RANGE, SK_IP, SK_PORT_RANGE, udlist, time_list, packet_list)
-    weather_request = make_function(HomeIP, HomePort_RANGE, SK_IP, SK_PORT_RANGE, udlist, time_list, packet_list)
-    movie_request = make_function(HomeIP, HomePort_RANGE, SK_IP, SK_PORT_RANGE, udlist, time_list, packet_list)
-    daily_news = time_plus_packet(datetime(2018,1,1,0,0,0), news_request)
-
-    SK_nugu = news_request+weather_request+movie_request
-    pprint(SK_nugu)
-    # device1.start_time = data_gen_start
-    # device1.finish_time = data_gen_finish
-    # print(device1.make_packet())
-
-
 
