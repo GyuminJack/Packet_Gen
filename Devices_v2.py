@@ -39,13 +39,19 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
     time_gap = to_time-from_time
     execute_times = (time_gap / change_sec).seconds
     time = from_time
-
+    import copy 
     j=0
     while time < to_time:
         time = time + timedelta(seconds = change_sec*1)
         for i, packet in enumerate(packet_list):
-            packet[5] = size_packet(packet_level[i])
+            packet_list[i][5] = size_packet(packet_level[i])
+            print(packet_list)
         action = time_plus_packet(time, packet_list)
+        src = np.random.randint(action[0][2][0], action[0][2][1])
+        dst = np.random.randint(action[0][4][0], action[0][4][1])
+
+        action[0][2], action[0][4] = src, dst
+        action[1][2], action[1][4] = dst, src
         itertime_packet.append(action)
         j += 1
     return itertime_packet
