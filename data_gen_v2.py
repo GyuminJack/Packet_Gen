@@ -14,7 +14,8 @@ class user_type:
         return self.time_action
 
 class Home():
-    def __init__(self, IP, PORT_RANGE):
+    def __init__(self, HOME_NAME, IP, PORT_RANGE):
+        self.Home_name = HOME_NAME
         self.IP = IP
         self.PORT_RANGE = PORT_RANGE
 
@@ -154,10 +155,11 @@ class Home():
     
 def home_set():
     Home_class_list = []
-    Home_packet_list = []
+    Home_packet_dict = {}
     with open('HomeConfig.json','r') as f:
         home_config = json.load(f)
     for k1 in home_config:
+        Home_name = k1
         IP = home_config[k1]['IP']
         PortRange = home_config[k1]['PortRange']
         for _date in ['today','from_date','to_date']:
@@ -171,22 +173,22 @@ def home_set():
                 to_date = datetime(a,b,c,d,e,f)
         Device_list = home_config[k1]['Devices']
         User_list = home_config[k1]['User_setting']
-        make_home = Home(IP,PortRange)
+        make_home = Home(Home_name,IP,PortRange)
         make_home.device_setting(Device_list)
         make_home.user_setting(User_list)
         Home_class_list.append(make_home)
-        Home_packet_list.append(make_home.packet_generate(from_date, to_date))
-    return Home_class_list, Home_packet_list
+        Home_packet_dict[make_home.Home_name] = sum(make_home.packet_generate(from_date, to_date),[])
+    return Home_class_list, Home_packet_dict
 
 
 
 if __name__ == "__main__":
-    home_list, home_packet_list = home_set()
-    home1 = home_packet_list[0]
-    home1 = sum(home1, [])
     import pandas as pd
-    df = pd.DataFrame(home1, columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE", "Session_id"])
-    df.to_csv("Testing.log",index=False)
-    # print(df)
+    home_list, home_packet_dict = home_set()
+    for each_home in home_list:
+        home_name = each_home.Home_name
+        df = pd.DataFrame(home_packet_dict[home_name], columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE", "Session_id"])
+        df.to_csv("{}.log".format(home_name),index=False)
+
     
  
