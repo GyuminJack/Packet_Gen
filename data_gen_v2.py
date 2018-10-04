@@ -3,13 +3,13 @@ import json
 class user_type:
     def __init__(self):
         self.time_action = []
-    def action_add(self,time_H,time_M,action,day_end):
+    def action_add(self,time_H,time_M,action,action_trial,day_end):
         mean_time = time_H*24 + time_M
         std = 5^2
         _g_sample = np.round(np.random.normal(0, std, 1))
         g_time_H = int((mean_time +_g_sample)/24)
         g_time_M = (mean_time +_g_sample) - 24*g_time_H
-        self.time_action.append([g_time_H,g_time_M,action,day_end])
+        self.time_action.append([g_time_H,g_time_M,action,action_trial,day_end])
     def time_action(self):
         return self.time_action
 
@@ -46,9 +46,10 @@ class Home():
                         for key in action_root:
                             action_H = action_root[key]['Hour']
                             action_M = action_root[key]['Min']
+                            action_trial = action_root[key]['trial']
                             action = key
-                            user_config.action_add(action_H, action_M, action, _dayend)
-                        all_user.append(user_config)
+                            user_config.action_add(action_H, action_M, action, action_trial, _dayend)
+                    all_user.append(user_config)
             return all_user
         self.user_list = make_user_list()
 
@@ -61,10 +62,11 @@ class Home():
         # make all day routine
         user_action_making = []
         for i, user in enumerate(self.user_list):
+            print(user)
             weekday_user_pattern = []
             weekend_user_pattern = []
             for _action_list in user.time_action:
-                if _action_list[3] == 'weekday':
+                if _action_list[4] == 'weekday':
                     weekday_user_pattern.append(_action_list)
                 else:
                     weekend_user_pattern.append(_action_list)
@@ -73,16 +75,16 @@ class Home():
             while action_time <= self.to_date:
                 action_de = action_time.weekday()
                 if action_de < 5:
-                    for hour, min, action, _ in weekday_user_pattern:
+                    for hour, min, action, trial, _  in weekday_user_pattern:
                         action_time = datetime(action_time.year, action_time.month,
                                                 action_time.day, hour, min)
-                        user_action_making.append([action_time, action])
+                        user_action_making.append([action_time, action, trial])
                     action_time += timedelta(days=1)
                 else:
-                    for hour, min, action, _ in weekend_user_pattern:
+                    for hour, min, action, trial, _  in weekend_user_pattern:
                         action_time = datetime(action_time.year, action_time.month,
                                                 action_time.day, hour, min)
-                        user_action_making.append([action_time, action])
+                        user_action_making.append([action_time, action, trial])
                     action_time += timedelta(days=1)
 
             # action_time = self.from_date
@@ -111,43 +113,40 @@ class Home():
         device_packet_dict = {}
         in_home_device_set = self.selected_device_dict
         all_packet_list = []
-        
-        for time, work in all_user_pattern:
+        for time, work, C_trials in all_user_pattern:
             for device_name in self.selected_device_dict:
                 for function_name in in_home_device_set[device_name]:
-                    i=0
                     function = in_home_device_set[device_name][function_name]
                     srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
                     dstport = np.random.randint(function['PortRange'][0],function['PortRange'][1],size = 1000)
-
-                    new_task = make_function(self.IP, srcport[i], 
+                    #기본 단위의 패킷 생성
+                    new_task = make_function(device_name,self.IP, srcport[i], 
                                                 function['Server']+str(np.random.randint(0,256)), 
                                                 dstport[i], 
                                                 function['UPDN'], function['time'], function['packet'])       
                     device_packet_dict[function_name] = new_task
                     # pprint(device_packet_dict)
-                    i += 1
             try:
-                made_packet = time_plus_packet(time, device_packet_dict[work])
+                made_packet = time_plus_packet(time, device_packet_dict[work], C_trials)
                 all_packet_list.append(made_packet)
             except:
                 pass
 
         # device firmware Check
         for device_name in self.selected_device_dict:
-            if "firmware_check" in in_home_device_set[device_name]:
-                firmware_check = in_home_device_set[device_name]['firmware_check']
-                firmware_packet = make_function(self.IP, self.PORT_RANGE, 
-                                                firmware_check['Server'], 
-                                                firmware_check['PortRange'], 
-                                                firmware_check['UPDN'], firmware_check['time'], firmware_check['packet'])       
-                
-                interval_time = firmware_check['interval1']
-                interval_key = firmware_check['interval2']
-                firmware_packet = itertime_action(from_date, to_date,
-                                                 interval_time, interval_key,
-                                                 firmware_packet, firmware_check['packet'])
-                all_packet_list += firmware_packet
+            for k in in_home_device_set[device_name]:
+                if "interval1" in in_home_device_set[device_name][k]:
+                    firmware_check = in_home_device_set[device_name][k]
+                    firmware_packet = make_function(device_name, self.IP, self.PORT_RANGE, 
+                                                    firmware_check['Server'], 
+                                                    firmware_check['PortRange'], 
+                                                    firmware_check['UPDN'], firmware_check['time'], firmware_check['packet'])
+                    interval_time = firmware_check['interval1']
+                    interval_key = firmware_check['interval2']
+                    firmware_packet = itertime_action(from_date, to_date,
+                                                    interval_time, interval_key,
+                                                    firmware_packet, firmware_check['packet'])
+                    all_packet_list += firmware_packet
         # pprint(device_packet_dict)
         return all_packet_list
     
@@ -185,7 +184,8 @@ if __name__ == "__main__":
     home_list, home_packet_dict = home_set()
     for each_home in home_list:
         home_name = each_home.Home_name
-        df = pd.DataFrame(home_packet_dict[home_name], columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE", "Session_id"])
+        df = pd.DataFrame(home_packet_dict[home_name], columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE", "Session_id","vendor"])
+        df = df.sort_values(by = 'Time')
         df.to_csv("{}.log".format(home_name),index=False)
 
     

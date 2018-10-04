@@ -1,22 +1,22 @@
 {
     "USER1" : { 
         "weekday" : {
-            "traffic_check" : {"Hour":7, "Min":59},
-            "find_info" : {"Hour":10, "Min":0}
+            "s_traffic_check" : {"Hour":7, "Min":0, "trial" : 2},
+            "s_find_info" : {"Hour":10, "Min":0, "trial" : 1}
         },
         "weekend" : {
-            "traffic_check" : {"Hour":1, "Min":10},
-            "find_info" : {"Hour":2, "Min":0}
+            "s_traffic_check" : {"Hour":1, "Min":10, "trial" : 1},
+            "s_find_info" : {"Hour":2, "Min":0, "trial" : 1}
         }
     },
     "USER2" : { 
         "weekday" : {
-            "traffic_check" : {"Hour":7, "Min":59},
-            "find_info" : {"Hour":10, "Min":0}
+            "traffic_check" : {"Hour":7, "Min":59, "trial" : 1},
+            "find_info" : {"Hour":10, "Min":0, "trial" : 1}
         },
         "weekend" : {
-            "traffic_check" : {"Hour":1, "Min":10},
-            "find_info" : {"Hour":3, "Min":0}
+            "traffic_check" : {"Hour":1, "Min":10, "trial" : 1},
+            "find_info" : {"Hour":3, "Min":0, "trial" : 1}
         }
     }
-}
+}   
