@@ -2,21 +2,27 @@
     "USER1" : { 
         "weekday" : {
             "s_traffic_check" : {"Hour":7, "Min":0, "trial" : 2},
-            "s_find_info" : {"Hour":10, "Min":0, "trial" : 1}
+            "s_find_info" : {"Hour":10, "Min":0, "trial" : 1},
+            "Hc_view_state_1" : {"Hour":11, "Min":0, "trial" : 1},
+            "Hc_view_state_2" : {"Hour":18, "Min":0, "trial" : 2},
+            "Hc_view_state_3" : {"Hour":14, "Min":0, "trial" : 1}
         },
         "weekend" : {
+            "Hc_view_state_1" : {"Hour":17, "Min":0, "trial" : 1},
+            "Hc_view_state_2" : {"Hour":15, "Min":0, "trial" : 1},
             "s_traffic_check" : {"Hour":1, "Min":10, "trial" : 1},
             "s_find_info" : {"Hour":2, "Min":0, "trial" : 1}
         }
     },
     "USER2" : { 
         "weekday" : {
-            "traffic_check" : {"Hour":7, "Min":59, "trial" : 1},
-            "find_info" : {"Hour":10, "Min":0, "trial" : 1}
+            "k_traffic_check" : {"Hour":7, "Min":59, "trial" : 1},
+            "k_find_info" : {"Hour":10, "Min":0, "trial" : 1},
+            "Hc_view_state" : {"Hour":16, "Min":30, "trial" : 3}
         },
         "weekend" : {
-            "traffic_check" : {"Hour":1, "Min":10, "trial" : 1},
-            "find_info" : {"Hour":3, "Min":0, "trial" : 1}
+            "k_traffic_check" : {"Hour":1, "Min":10, "trial" : 1},
+            "k_find_info" : {"Hour":3, "Min":0, "trial" : 1}
         }
     }
 }   

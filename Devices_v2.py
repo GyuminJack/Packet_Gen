@@ -9,7 +9,7 @@ import copy
 #3. 기기리스트 - 템플릿
 #4. 시작 날짜 - 마감 날짜
 
-SESSION_ID_RANGE = [i for i in range(65000)]
+SESSION_ID_RANGE = [i for i in range(65001)]
 
 def size_packet(level):
     size_list = [[10,1],[50,4],[250,4],[500,25],[1000,100],[5000,4]]
@@ -30,21 +30,31 @@ def make_function(vendor,srcip, srcport, dstip, dstport, udlist, time_list, pack
         total_packet += [line]
     return total_packet
 
-def time_plus_packet(active_time, packet_list, Continuous_trials=1):
+def time_plus_packet(start_time, finish_time, packet_list, max_trials):
     all_time = []
     packets = []
-    selected_second = int(np.random.randint(1,59,1))
-    time_buffer = active_time.replace(second=selected_second)
+    time_gap = (finish_time - start_time).total_seconds()
+    selected_plus_time = list(np.random.randint(0, time_gap+1, size = max_trials))
+    selected_plus_time[0] = 0
+    selected_plus_time.sort()
+    last_time_list = [0 for _ in range(10)]
+    last_time_list[0] = start_time - timedelta(seconds = 1)
+    for i, s_time in enumerate(selected_plus_time):
+        in_time = start_time + timedelta(seconds = s_time)
+        print(last_time_list[i])
+        if in_time > last_time_list[i]:
+            for packet in packet_list:
+                cost_time = packet[0]
+                _trial = math.ceil(cost_time)
+                for _ in range(_trial):
+                    plus_time = (in_time + timedelta(seconds = 1)).strftime('%Y-%m-%d %H:%M:%S')
+                    packets += [[plus_time] + packet[1:-3] + [packet[-3]/_trial] + packet[-2:]]
+                    last_time = (in_time + timedelta(seconds = 1))
+                last_time_list.append(last_time)
 
-    continue_time = Continuous_trials
-    for _ in range(continue_time):
-        for i, packet in enumerate(packet_list):
-            cost_time = packet[0]
-            _trial = math.ceil(cost_time)
-            for _ in range(_trial):
-                plus_time = (time_buffer + timedelta(seconds = 1)).strftime('%Y-%m-%d %H:%M:%S')
-                packets += [[plus_time] + packet[1:-3] + [packet[-3]/_trial] + packet[-2:]]
-                time_buffer = (time_buffer + timedelta(seconds = 1))
+
+    ### 스타트와 피니시 타임을 전달 받고 해당 시간내에 두번 실행하는 경우 어떻게 설계?
+
     all_time += packets
     return all_time
 
@@ -64,9 +74,9 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
         time = time + timedelta(seconds = change_sec*1)
         for i, packet in enumerate(packet_list):
             packet_list[i][5] = size_packet(packet_level[i])
-        action = time_plus_packet(time, packet_list)
-        src = np.random.randint(action[0][2][0], action[0][2][1])
-        dst = np.random.randint(action[0][4][0], action[0][4][1])
+        action = time_plus_packet(time,time, packet_list, 1)
+        src = int(np.random.randint(action[0][2][0], action[0][2][1], size=1))
+        dst = int(np.random.randint(action[0][4][0], action[0][4][1], size=1))
         action[0][2], action[0][4] = src, dst
         action[1][2], action[1][4] = dst, src
         session_id = np.random.choice(SESSION_ID_RANGE)

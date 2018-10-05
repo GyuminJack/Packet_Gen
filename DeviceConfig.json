@@ -1,5 +1,5 @@
 {
-    "SK_NUGU" : {
+    "SK_NUGU" : { 
         "s_find_info" : {
             "Server" : "143.234.223.",
             "PortRange" : [800,1900],
@@ -44,50 +44,48 @@
             "interval1" : 15,
             "interval2" : "min"        
         }
-        
     },
     "KT_GINI" : {
         "k_traffic_check" : {
             "Server" : "143.234.223.",
             "PortRange" : [800,1900],
             "UPDN" : ["UP","DN","UP","DN"],
-            "time" : [1,2,3,4],
+            "time" : [1,1,1,1],
             "packet" : [1,2,2,5]
         },
         "k_weather_check" : {
             "Server" : "143.234.223.",
             "PortRange" : [800,1900],
             "UPDN" : ["UP","DN","UP","DN"],
-            "time" : [1,2,3,4],
+            "time" : [1,1,1,1],
             "packet" : [1,2,2,5]
         },
         "k_news_check" : {
             "Server" : "143.234.223.",
             "PortRange" : [800,1900],
             "UPDN" : ["UP","DN","UP","DN"],
-            "time" : [1,2,3,4],
+            "time" : [1,1,1,4],
             "packet" : [1,2,2,5]
         },
         "k_morining_breifing" : {
             "Server" : "143.234.223.",
             "PortRange" : [800,1900],
             "UPDN" : ["UP","DN","UP","DN"],
-            "time" : [1,2,3,4],
+            "time" : [1,1,1,4],
             "packet" : [1,2,2,5]
         },
         "k_music_stream" : {
             "Server" : "143.234.223.",
             "PortRange" : [800,1900],
             "UPDN" : ["UP","DN","UP","DN"],
-            "time" : [1,2,3,4],
+            "time" : [1,1,1,5],
             "packet" : [1,2,2,5]
         },
-
         "k_firmware_check" : {
             "Server" : "132.214.243.231",
             "PortRange" : [1000,1001],
             "UPDN" : ["UP","DN"],
-            "time" : [1,2],
+            "time" : [1,1],
             "packet" : [1,2],
             "interval1" : 15,
             "interval2" : "min"
@@ -111,6 +109,48 @@
             "packet" : [1,2,2,5]
         }
     },
+    "Smart_refregerator" : {
+        "Sr_find_recipe" : {
+            "Server" : "132.214.243.231",
+            "PortRange" : [800,1900],
+            "UPDN" : ["UP","DN","UP","DN"],
+            "time" : [1,1,1,1],
+            "packet" : [1,2,2,5]
+        },
+        "Sr_searching" : {
+            "Server" : "132.214.243.231",
+            "PortRange" : [800,1900],
+            "UPDN" : ["UP","DN","UP","DN","UP","DN"],
+            "time" : [1,1,1,4,3,4],
+            "packet" : [1,1,1,2,2,5]
+        },
+        "Sr_screen_request" : {
+            "Server" : "132.214.243.231",
+            "PortRange" : [800,1900],
+            "UPDN" : ["DN","UP","DN","UP"],
+            "time" : [1,1,1,4],
+            "packet" : [1,1,1,4]
+        },
+        "Sr_weather_check" : {
+            "Server" : "122.214.225.231",
+            "PortRange" : [1000,1001],
+            "UPDN" : ["UP","DN"],
+            "time" : [1,1],
+            "packet" : [1,1],
+            "interval1" : 1,
+            "interval2" : "hour"
+        },
+        "k_firmware_check" : {
+            "Server" : "132.214.243.231",
+            "PortRange" : [1000,1001],
+            "UPDN" : ["UP","DN"],
+            "time" : [1,1],
+            "packet" : [1,2],
+            "interval1" : 30,
+            "interval2" : "min"
+        }
+        
+    },
     "Home_camera" : {
         "Hc_view_state" : {
             "Server" : "132.214.243.",
@@ -122,11 +162,20 @@
     },
     "Smart_scale" : {
         "Ss_upload_data" : {
-            "Server" : "132.214.243.",
+            "Server" : "122.214.253.",
             "PortRange" : [2002,2003],
             "UPDN" : ["UP","DN","UP","DN"],
             "time" : [1,1,1,1],
             "packet" : [1,1,2,1]
+        },
+        "Ss_firmware_check" : {
+            "Server" : "122.214.225.231",
+            "PortRange" : [1000,1001],
+            "UPDN" : ["UP","DN"],
+            "time" : [1,1],
+            "packet" : [1,1],
+            "interval1" : 15,
+            "interval2" : "min"
         }
     }    
 }

@@ -3,39 +3,53 @@ import json
 class user_type:
     def __init__(self):
         self.time_action = []
-    def action_add(self,time_H,time_M,action,action_trial,day_end):
-        mean_time = time_H*24 + time_M
-        std = 5^2
-        _g_sample = np.round(np.random.normal(0, std, 1))
-        g_time_H = int((mean_time +_g_sample)/24)
-        g_time_M = (mean_time +_g_sample) - 24*g_time_H
-        self.time_action.append([g_time_H,g_time_M,action,action_trial,day_end])
+    def action_add(self,start_time,finish_time,action,max_trial,day_end):
+        start_hour, start_min = int(str(start_time)[:-2]), int(str(start_time)[-2:])
+        finish_hour, finish_min = int(str(finish_time)[:-2]), int(str(finish_time)[-2:])
+        min_to_start = start_hour*60 + start_min
+        min_to_finish = finish_hour*60 + finish_min
+        select_time = int(np.random.randint(min_to_start, min_to_finish, size = 1))
+        g_time_H = int(select_time/60)
+        g_time_M = (select_time) - 60*g_time_H
+        self.time_action.append([g_time_H,g_time_M, finish_hour, finish_min, action,max_trial,day_end])
     def time_action(self):
         return self.time_action
+#c 클래스 이하 3자리를 겹치지 않게 하기 위한 메모리
+IP_range = [i for i in range(1,256)]
 
 class Home():
     def __init__(self, HOME_NAME, IP, PORT_RANGE):
         self.Home_name = HOME_NAME
         self.IP = IP
+        global IP_range
         self.PORT_RANGE = PORT_RANGE
 
     # def date_setting(self, today_time):
     #     self.today_time = today_time
 
     def device_setting(self, device_list):
-        with open('DeviceConfig.json','r') as f:
-            config = json.load(f)
+        try:
+            with open('DeviceConfig.json','r') as f:
+                config = json.load(f)
+        except:
+            print("DeviceConfig error")
         self.all_device_dict = config
         self.selected_device_dict = {}
         for k in self.all_device_dict:
             if k in device_list:
-                self.selected_device_dict[k] = self.all_device_dict[k]
-
-
+                self.selected_device_dict[k] = copy.deepcopy(self.all_device_dict[k])
+                selected_device_ip = int(np.random.choice(IP_range))
+                self.selected_device_dict[k]["Device IP"] = self.IP +"." + str(selected_device_ip)
+                self.selected_device_dict[k]["Device Portrange"] = [100,200]
+                IP_range.remove(selected_device_ip)
+    #userconfig_setting
     def user_setting(self,costum_user_list):
         def make_user_list():
-            with open('UserConfig.json','r') as f:
-                self.user_config = json.load(f)
+            try:
+                with open('UserConfig_1.json','r') as f:
+                    self.user_config = json.load(f)
+            except:
+                print("UserConfig error")
             all_user_dict = self.user_config
             all_user = []
             for k in all_user_dict:
@@ -44,16 +58,14 @@ class Home():
                     for _dayend in all_user_dict[k]:
                         action_root = all_user_dict[k][_dayend]
                         for key in action_root:
-                            action_H = action_root[key]['Hour']
-                            action_M = action_root[key]['Min']
-                            action_trial = action_root[key]['trial']
+                            action_start = action_root[key]['start_time']
+                            action_finish = action_root[key]['finish_time']
+                            action_max_trial = action_root[key]['max_trial']
                             action = key
-                            user_config.action_add(action_H, action_M, action, action_trial, _dayend)
+                            user_config.action_add(action_start, action_finish, action, action_max_trial, _dayend)
                     all_user.append(user_config)
             return all_user
         self.user_list = make_user_list()
-
-
 
     def packet_generate(self, from_date, to_date):
         self.from_date = from_date
@@ -62,11 +74,11 @@ class Home():
         # make all day routine
         user_action_making = []
         for i, user in enumerate(self.user_list):
-            print(user)
+            # print(user)
             weekday_user_pattern = []
             weekend_user_pattern = []
             for _action_list in user.time_action:
-                if _action_list[4] == 'weekday':
+                if _action_list[-1] == 'weekday':
                     weekday_user_pattern.append(_action_list)
                 else:
                     weekend_user_pattern.append(_action_list)
@@ -75,16 +87,20 @@ class Home():
             while action_time <= self.to_date:
                 action_de = action_time.weekday()
                 if action_de < 5:
-                    for hour, min, action, trial, _  in weekday_user_pattern:
+                    for s_hour, s_min, f_hour, f_min, action, trial, _  in weekday_user_pattern:
                         action_time = datetime(action_time.year, action_time.month,
-                                                action_time.day, hour, min)
-                        user_action_making.append([action_time, action, trial])
+                                                action_time.day, s_hour, s_min)
+                        finish_time = datetime(action_time.year, action_time.month,
+                                                action_time.day, f_hour, f_min)                                                
+                        user_action_making.append([action_time, finish_time, action, trial])
                     action_time += timedelta(days=1)
                 else:
-                    for hour, min, action, trial, _  in weekend_user_pattern:
+                    for s_hour, s_min, f_hour, f_min, action, trial, _   in weekend_user_pattern:
                         action_time = datetime(action_time.year, action_time.month,
-                                                action_time.day, hour, min)
-                        user_action_making.append([action_time, action, trial])
+                                                action_time.day, s_hour, s_min)
+                        finish_time = datetime(action_time.year, action_time.month,
+                                                action_time.day, f_hour, f_min)    
+                        user_action_making.append([action_time, finish_time, action, trial])
                     action_time += timedelta(days=1)
 
             # action_time = self.from_date
@@ -113,31 +129,45 @@ class Home():
         device_packet_dict = {}
         in_home_device_set = self.selected_device_dict
         all_packet_list = []
-        for time, work, C_trials in all_user_pattern:
+        import re
+        for s_time, f_time, work, max_trials in all_user_pattern:
+            try:
+                work = re.sub("[_]+[0-9]","",work)
+            except:
+                pass
+
             for device_name in self.selected_device_dict:
+                Device_IP = self.selected_device_dict[device_name]["Device IP"]
+                Device_Portrange = self.selected_device_dict[device_name]["Device Portrange"]
+                Device_port = int(np.random.choice(Device_Portrange))
+
                 for function_name in in_home_device_set[device_name]:
-                    function = in_home_device_set[device_name][function_name]
-                    srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
-                    dstport = np.random.randint(function['PortRange'][0],function['PortRange'][1],size = 1000)
-                    #기본 단위의 패킷 생성
-                    new_task = make_function(device_name,self.IP, srcport[i], 
-                                                function['Server']+str(np.random.randint(0,256)), 
-                                                dstport[i], 
-                                                function['UPDN'], function['time'], function['packet'])       
-                    device_packet_dict[function_name] = new_task
+                    if function_name not in ['Device IP','Device Portrange']:
+                        function = in_home_device_set[device_name][function_name]
+                        srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
+                        dstport = np.random.randint(function['PortRange'][0],function['PortRange'][1],size = 1000)
+                        #기본 단위의 패킷 생성
+                        new_task = make_function(device_name, Device_IP, srcport[i], 
+                                                    function['Server']+str(np.random.randint(0,256)), 
+                                                    dstport[i], 
+                                                    function['UPDN'], function['time'], function['packet'])
+                        device_packet_dict[function_name] = new_task
                     # pprint(device_packet_dict)
             try:
-                made_packet = time_plus_packet(time, device_packet_dict[work], C_trials)
+                made_packet = time_plus_packet(s_time, f_time, device_packet_dict[work], max_trials)
                 all_packet_list.append(made_packet)
             except:
                 pass
 
         # device firmware Check
         for device_name in self.selected_device_dict:
+            Device_IP = self.selected_device_dict[device_name]["Device IP"] 
+            Device_Portrange = self.selected_device_dict[device_name]["Device Portrange"]
+            Device_port = int(np.random.choice(Device_Portrange))
             for k in in_home_device_set[device_name]:
                 if "interval1" in in_home_device_set[device_name][k]:
                     firmware_check = in_home_device_set[device_name][k]
-                    firmware_packet = make_function(device_name, self.IP, self.PORT_RANGE, 
+                    firmware_packet = make_function(device_name, Device_IP, Device_Portrange, 
                                                     firmware_check['Server'], 
                                                     firmware_check['PortRange'], 
                                                     firmware_check['UPDN'], firmware_check['time'], firmware_check['packet'])
@@ -153,18 +183,19 @@ class Home():
 def home_set():
     Home_class_list = []
     Home_packet_dict = {}
-    with open('HomeConfig.json','r') as f:
-        home_config = json.load(f)
+    try:
+        with open('HomeConfig.json','r') as f:
+            home_config = json.load(f)
+    except:
+        print("HomeConfig error")
     for k1 in home_config:
         Home_name = k1
         IP = home_config[k1]['IP']
         PortRange = home_config[k1]['PortRange']
-        for _date in ['today','from_date','to_date']:
+        for _date in ['from_date','to_date']:
             a,b,c,d,e,f = home_config[k1][_date].split(",")
             a,b,c,d,e,f = int(a),int(b),int(c),int(d),int(e),int(f)
-            if _date == 'today':
-                today_time = datetime(a,b,c,d,e,f)
-            elif _date == 'from_date':
+            if _date == 'from_date':
                 from_date = datetime(a,b,c,d,e,f)
             elif _date == 'to_date':
                 to_date = datetime(a,b,c,d,e,f)
@@ -175,6 +206,7 @@ def home_set():
         make_home.user_setting(User_list)
         Home_class_list.append(make_home)
         Home_packet_dict[make_home.Home_name] = sum(make_home.packet_generate(from_date, to_date),[])
+        print("finish {}".format(Home_name))
     return Home_class_list, Home_packet_dict
 
 
@@ -184,9 +216,10 @@ if __name__ == "__main__":
     home_list, home_packet_dict = home_set()
     for each_home in home_list:
         home_name = each_home.Home_name
-        df = pd.DataFrame(home_packet_dict[home_name], columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE", "Session_id","vendor"])
+        df = pd.DataFrame(home_packet_dict[home_name], 
+            columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE", "Session_id","vendor"])
         df = df.sort_values(by = 'Time')
         df.to_csv("{}.log".format(home_name),index=False)
-
+        
     
  
