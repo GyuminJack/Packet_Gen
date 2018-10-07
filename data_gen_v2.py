@@ -16,16 +16,13 @@ class user_type:
         return self.time_action
 #c 클래스 이하 3자리를 겹치지 않게 하기 위한 메모리
 IP_range = [i for i in range(1,256)]
-
+home_Port_range = [i for i in range(1,65535)]
 class Home():
     def __init__(self, HOME_NAME, IP, PORT_RANGE):
         self.Home_name = HOME_NAME
         self.IP = IP
         global IP_range
         self.PORT_RANGE = PORT_RANGE
-
-    # def date_setting(self, today_time):
-    #     self.today_time = today_time
 
     def device_setting(self, device_list):
         try:
@@ -39,7 +36,8 @@ class Home():
             if k in device_list:
                 self.selected_device_dict[k] = copy.deepcopy(self.all_device_dict[k])
                 selected_device_ip = int(np.random.choice(IP_range))
-                self.selected_device_dict[k]["Device IP"] = self.IP +"." + str(selected_device_ip)
+                self.selected_device_dict[k]["Device IP"] = self.IP + "." + str(selected_device_ip)
+                # 집에서 사용 되는 포트는 어떻게 규정할 것인지..
                 self.selected_device_dict[k]["Device Portrange"] = [100,200]
                 IP_range.remove(selected_device_ip)
     #userconfig_setting
