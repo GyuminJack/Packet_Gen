@@ -1,0 +1,118 @@
+{
+    "SK_NUGU" : { 
+        "s_traffic_check" : {
+            "Task" : "Common",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "123.234.23.",
+                    "PortRange" : [300,301],
+                    "UPDN" : ["UP","DN","UP","DN"],
+                    "time" : [1,1,1,5],
+                    "packet" : [1,1,2,3]
+                },
+                "Routine" : ["Session1"]
+            }
+        },
+        "s_find_info" : {
+            "Task" : "Common",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "143.234.223.",
+                    "PortRange" : [800,1900],
+                    "UPDN" : ["UP","DN","UP","DN"],
+                    "time" : [1,1,1,4],
+                    "packet" : [1,1,5,3]
+                },
+                "Routine" : ["Session1"]
+            }
+        },
+        "s_music_stream" : {
+            "Task" : "Streaming",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "112.234.23.",
+                    "PortRange" : [502,5601],
+                    "UPDN" : ["UP","DN"],
+                    "time" : [1,1],
+                    "packet" : [1,1]
+                },
+                "Streaming" : {
+                    "Server" : "112.234.23.",
+                    "PortRange" : [502,5601],
+                    "UPDN" : ["UP","DN"],
+                    "time" : [1,180],
+                    "packet" : [2,5],
+                    "Playingtime" : 30
+                },
+                "Routine" : ["Session1","Streaming"]
+            }
+        }
+    },
+    "Home_camera" : {
+        "Hc_Normal" : {
+            "Task" : "Repeatly",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "13.228.14.18",
+                    "PortRange" : [0,5000],
+                    "UPDN" : ["UP","DN"],
+                    "time" : [1,1],
+                    "packet" : [1,1],
+                    "interval1" : 15,
+                    "interval2" : "min"
+                },
+                "Routine" : ["Session1"]
+            }
+        },
+        "Hc_view_state" : {
+            "Task" : "Common",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "132.214.243.",
+                    "PortRange" : [9010,9011],
+                    "UPDN" : ["DN","UP","DN","UP"],
+                    "time" : [1,1,2,1],
+                    "packet" : [1,1,2,2]
+                },
+                "Session2" : {
+                    "Server" : "152.12.213.",
+                    "PortRange" : [9020,9021],
+                    "UPDN" : ["UP"],
+                    "time" : [10],
+                    "packet" : [5] 
+                },
+                "Routine" : ["Session1","Session2"]
+            }
+        }
+    },
+    "Smart_airconditioner" : {
+        "Sa_upload" : {
+            "Task" : "Repeatly",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "132.214.243.231",
+                    "PortRange" : [1000,1001],
+                    "UPDN" : ["UP","DN"],
+                    "time" : [1,1],
+                    "packet" : [3,1],
+                    "interval1" : 15,
+                    "interval2" : "min" 
+                },
+                "Routine" : ["Session1"]
+            }
+        },
+        "Sa_view_state" : {
+            "Task" : "Common",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "132.214.243.",
+                    "PortRange" : [2002,2003],
+                    "UPDN" : ["DN","UP","DN","UP"],
+                    "time" : [1,1,2,10],
+                    "packet" : [1,2,2,5]
+                },
+                "Routine" : ["Session1"]
+            }
+        }
+    }
+}

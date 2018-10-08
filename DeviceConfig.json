@@ -152,20 +152,33 @@
         
     },
     "Home_camera" : {
-        "Hc_Normal": { 
-            "Server" : "13.228.14.18",
-            "PortRange" : [0,5000],
-            "UPDN" : ["UP","DN"],
-            "time" : [1,1],
-            "packet" : [1,1]  
+        "Hc_Normal": {
+            "Session1" : {
+                "Server" : "13.228.14.18",
+                "PortRange" : [0,5000],
+                "UPDN" : ["UP","DN"],
+                "time" : [1,1],
+                "packet" : [1,1]
+            }
         },
 
         "Hc_view_state" : {
-            "Server" : "132.214.243.",
-            "PortRange" : [9010,9011],
-            "UPDN" : ["DN","UP","DN","UP"],
-            "time" : [1,1,2,10],
-            "packet" : [1,2,2,5]
+            "Session1" : {
+                "Server" : "132.214.243.",
+                "PortRange" : [9010,9011],
+                "UPDN" : ["DN","UP","DN","UP"],
+                "time" : [1,1,2,1],
+                "packet" : [1,1,2,2]
+            },
+            "Session2" : {
+                "Server" : "132.214.243.",
+                "PortRange" : [9020,9021],
+                "UPDN" : ["DN"],
+                "time" : [10],
+                "packet" : [5] 
+            },
+            "Routine" : ["Session1","Session2"]
+
         }
     },
     "Smart_scale" : {

@@ -72,7 +72,7 @@ def time_plus_packet(_start_time, _finish_time, packet_list, max_trials):
             for _ in range(_trial):
                 # 초단위로 패킷을 구분해서 생성.
                 plus_time = (in_time + timedelta(seconds = 1)).strftime('%Y-%m-%d %H:%M:%S')
-                each_packet = [[plus_time] + packet[1:-3] + [packet[-3]/_trial] + packet[-2:]]
+                each_packet = [[plus_time] + packet[1:-3] + [round((packet[-3]/_trial),2)] + packet[-2:]]
                 packets += each_packet 
                 in_time = (in_time + timedelta(seconds = 1))
 

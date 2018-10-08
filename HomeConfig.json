@@ -2,17 +2,17 @@
     "Home1" : {
         "IP" : "192.168.0",
         "PortRange" : [100,230],
-        "from_date" : "2018,1,7,0,0,0",
-        "to_date" : "2018,1,8,0,0,0",
-        "Devices" : ["SK_NUGU","Smart_airconditioner","Home_camera","Smart_scale"],
+        "from_date" : "2018,1,1,0,0,0",
+        "to_date" : "2018,1,10,0,0,0",
+        "Devices" : ["Home_camera","SK_NUGU","Smart_airconditioner"],
         "User_setting" : ["USER1","USER2"]
     },
     "Home2" : {
         "IP" : "192.168.0",
         "PortRange" : [100,230],
-        "from_date" : "2018,1,3,0,0,0",
-        "to_date" : "2018,1,7,8,0,0",
-        "Devices" : ["KT_GINI","Home_camera"],
+        "from_date" : "2018,1,1,0,0,0",
+        "to_date" : "2018,1,1,8,0,0",
+        "Devices" : ["Home_camera"],
         "User_setting" : ["USER1","USER2"]
     }
         

@@ -1,5 +1,6 @@
 from Devices_v2 import *
 import json
+# 각 user를 define 하기 위한 class
 class user_type:
     def __init__(self):
         self.time_action = []
@@ -14,9 +15,13 @@ class user_type:
         self.time_action.append([g_time_H,g_time_M, finish_hour, finish_min, action,max_trial,day_end])
     def time_action(self):
         return self.time_action
-#c 클래스 이하 3자리를 겹치지 않게 하기 위한 메모리
+
+# Home 객체를 생성
+
+# c 클래스 이하 3자리를 겹치지 않게 하기 위한 메모리
 IP_range = [i for i in range(1,256)]
 home_Port_range = [i for i in range(1,65535)]
+
 class Home():
     def __init__(self, HOME_NAME, IP, PORT_RANGE):
         self.Home_name = HOME_NAME
@@ -24,9 +29,10 @@ class Home():
         global IP_range
         self.PORT_RANGE = PORT_RANGE
 
+    # 개별 Device들의 설정정보를 불러오고 IP / Port 설정
     def device_setting(self, device_list):
         try:
-            with open('DeviceConfig.json','r') as f:
+            with open('DeviceConfig.1.json','r') as f:
                 config = json.load(f)
         except:
             print("DeviceConfig error")
@@ -37,10 +43,10 @@ class Home():
                 self.selected_device_dict[k] = copy.deepcopy(self.all_device_dict[k])
                 selected_device_ip = int(np.random.choice(IP_range))
                 self.selected_device_dict[k]["Device IP"] = self.IP + "." + str(selected_device_ip)
-                # 집에서 사용 되는 포트는 어떻게 규정할 것인지..
                 self.selected_device_dict[k]["Device Portrange"] = [0,65535]
                 IP_range.remove(selected_device_ip)
-    #userconfig_setting
+
+    # 개별 User를 불러오고 해당 유저의 패턴을 생성
     def user_setting(self,costum_user_list):
         def make_user_list():
             try:
@@ -65,6 +71,7 @@ class Home():
             return all_user
         self.user_list = make_user_list()
 
+    # 유저정보와 기기정보를 합하여 패킷을 생성
     def packet_generate(self, from_date, to_date):
         self.from_date = from_date
         self.to_date = to_date
@@ -100,30 +107,10 @@ class Home():
                                                 action_time.day, f_hour, f_min)    
                         user_action_making.append([action_time, finish_time, action, trial])
                     action_time += timedelta(days=1)
-
-            # action_time = self.from_date
-            # for _action_list in user.time_action:
-            #     if action_time.weekday() < 5:
-            #         user_pattern = weekday_user_pattern
-            #         for hour, min, action, _  in user_pattern:
-            #             action_time = datetime(action_time.year, action_time.month,
-            #                                     action_time.day, hour, min)
-            #             while action_time < self.to_date:
-            #                 user_action_making.append([action_time,action])
-            #                 action_time += timedelta(days=1)
-            #     elif action_time.weekday() >= 5:
-            #         user_pattern = weekend_user_pattern
-            #         for hour, min, action, _  in user_pattern:
-            #             action_time = datetime(action_time.year, action_time.month,
-            #                                     action_time.day, hour, min)
-            #             while action_time < self.to_date:
-            #                 user_action_making.append([action_time,action])
-            #                 action_time += timedelta(days=1)
-
         all_user_pattern = user_action_making
 
 
-        # device에서 실행 시키기.
+        # Device의 기능별 기본 단위 패킷을 생성
         device_packet_dict = {}
         in_home_device_set = self.selected_device_dict
         all_packet_list = []
@@ -138,44 +125,90 @@ class Home():
                 Device_IP = self.selected_device_dict[device_name]["Device IP"]
                 Device_Portrange = self.selected_device_dict[device_name]["Device Portrange"]
                 Device_port = int(np.random.choice(Device_Portrange))
-
-                for function_name in in_home_device_set[device_name]:
+                for function_name in self.selected_device_dict[device_name]:
                     if function_name not in ['Device IP','Device Portrange']:
-                        function = in_home_device_set[device_name][function_name]
-                        srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
-                        dstport = np.random.randint(function['PortRange'][0],function['PortRange'][1],size = 1000)
-                        #기본 단위의 패킷 생성
-                        new_task = make_function(device_name, Device_IP, srcport[i], 
-                                                    function['Server']+str(np.random.randint(0,256)), 
-                                                    dstport[i], 
-                                                    function['UPDN'], function['time'], function['packet'])
-                        device_packet_dict[function_name] = new_task
-                    # pprint(device_packet_dict)
+                        if self.selected_device_dict[device_name][function_name]["Task"] == "Common":
+                            standard_packet_list = [] 
+                            try:
+                                for i, each_session in enumerate(self.selected_device_dict[device_name][function_name]['Sessions']['Routine']):
+                                    fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
+                                    srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
+                                    dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
+                                    new_task = make_function(device_name, Device_IP, srcport[i], 
+                                                        # Common Task의 IP세팅이 C class 라고 판단하는 부분
+                                                        fs['Server']+str(np.random.randint(0,256)), 
+                                                        dstport[i], fs['UPDN'], fs['time'], fs['packet'])
+                                    standard_packet_list += new_task
+                            except:
+                                print("{} has no Routine".format[function_name])
+                            device_packet_dict[function_name] = standard_packet_list
+
+                        elif self.selected_device_dict[device_name][function_name]["Task"] == "Streaming":
+                            standard_packet_list = []
+                            try:
+                                for i, each_session in enumerate(self.selected_device_dict[device_name][function_name]['Sessions']['Routine']):
+                                    # 스트리밍 다운로드를 실행하기 전 패킷
+                                    if each_session != "Streaming":
+                                        fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
+                                        srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
+                                        dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
+                                        new_task = make_function(device_name, Device_IP, srcport[i], 
+                                                            # Streaming Task의 IP세팅이 C class 라고 판단하는 부분
+                                                            fs['Server']+str(np.random.randint(0,256)), 
+                                                            dstport[i], fs['UPDN'], fs['time'], fs['packet'])
+                                        standard_packet_list += new_task
+                                    # 스트리밍 다운로드만을 가지고 있는 패킷
+                                    elif each_session == 'Streaming':
+                                        stream_packet_list = []
+                                        fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
+                                        srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
+                                        dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
+                                        all_using_time = int(np.random.randint(0,720))
+                                        each_playing_time = fs['time'][-1]
+                                        all_play = int(all_using_time / each_playing_time)
+                                        j = 1
+                                        ip_last = str(np.random.randint(0,256)) #특정 서버에서 작업이 된다면 D-class로 수정 필요
+                                        for _ in range(all_play):
+                                            new_task = make_function(device_name, Device_IP, srcport[j], 
+                                                                # Streaming Task의 IP세팅이 C class 라고 판단하는 부분
+                                                                fs['Server']+ip_last, 
+                                                                dstport[j], fs['UPDN'], fs['time'], fs['packet'])
+                                            stream_packet_list += new_task
+                                        standard_packet_list += stream_packet_list
+                            except:
+                                print("streaming precess error")
+                            device_packet_dict[function_name] = standard_packet_list
+
             try:
                 made_packet = time_plus_packet(s_time, f_time, device_packet_dict[work], max_trials)
                 all_packet_list.append(made_packet)
             except:
                 pass
 
-        # device firmware Check
+        # 반복작업에 대한 패킷 생성 : itertime_action 메서드 사용
         for device_name in self.selected_device_dict:
             Device_IP = self.selected_device_dict[device_name]["Device IP"] 
             Device_Portrange = self.selected_device_dict[device_name]["Device Portrange"]
             Device_port = int(np.random.choice(Device_Portrange))
-            for k in in_home_device_set[device_name]:
-                if "interval1" in in_home_device_set[device_name][k]:
-                    firmware_check = in_home_device_set[device_name][k]
-                    firmware_packet = make_function(device_name, Device_IP, Device_Portrange, 
-                                                    firmware_check['Server'], 
-                                                    firmware_check['PortRange'], 
-                                                    firmware_check['UPDN'], firmware_check['time'], firmware_check['packet'])
-                    interval_time = firmware_check['interval1']
-                    interval_key = firmware_check['interval2']
-                    firmware_packet = itertime_action(from_date, to_date,
-                                                    interval_time, interval_key,
-                                                    firmware_packet, firmware_check['packet'])
-                    all_packet_list += firmware_packet
-        # pprint(device_packet_dict)
+            for function_name in in_home_device_set[device_name]:
+                if function_name not in ['Device IP','Device Portrange']:
+                    if in_home_device_set[device_name][function_name]["Task"] == "Repeatly":
+                        repeat_work = in_home_device_set[device_name][function_name]["Sessions"]
+                        try:
+                            for each_session in repeat_work["Routine"]:
+                                session = repeat_work[each_session]
+                                firmware_packet = make_function(device_name, Device_IP, Device_Portrange, 
+                                                                #반복 작업의 경우 서버는 D class
+                                                                session['Server'], session['PortRange'], 
+                                                                session['UPDN'], session['time'], session['packet'])
+                                interval_time = session['interval1']
+                                interval_key = session['interval2']
+                                firmware_packet = itertime_action(from_date, to_date,
+                                                                interval_time, interval_key,
+                                                                firmware_packet, session['packet'])
+                                all_packet_list += firmware_packet
+                        except:
+                            print("error")
         return all_packet_list
     
 def home_set():

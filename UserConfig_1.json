@@ -5,10 +5,10 @@
                 "start_time": 710, 
                 "finish_time":1030, 
                 "max_trial" : 10},
-            "s_find_info" : {
+            "s_music_stream" : {
                 "start_time": 750, 
-                "finish_time":1030, 
-                "max_trial" : 10}
+                "finish_time" : 830,
+                "max_trial" : 2}
         },
         "weekend" : {
             "Hc_view_state_1" : {
