@@ -38,7 +38,7 @@ class Home():
                 selected_device_ip = int(np.random.choice(IP_range))
                 self.selected_device_dict[k]["Device IP"] = self.IP + "." + str(selected_device_ip)
                 # 집에서 사용 되는 포트는 어떻게 규정할 것인지..
-                self.selected_device_dict[k]["Device Portrange"] = [100,200]
+                self.selected_device_dict[k]["Device Portrange"] = [0,65535]
                 IP_range.remove(selected_device_ip)
     #userconfig_setting
     def user_setting(self,costum_user_list):

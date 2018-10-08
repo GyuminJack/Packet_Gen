@@ -152,9 +152,17 @@
         
     },
     "Home_camera" : {
+        "Hc_Normal": { 
+            "Server" : "13.228.14.18",
+            "PortRange" : [0,5000],
+            "UPDN" : ["UP","DN"],
+            "time" : [1,1],
+            "packet" : [1,1]  
+        },
+
         "Hc_view_state" : {
             "Server" : "132.214.243.",
-            "PortRange" : [2002,2003],
+            "PortRange" : [9010,9011],
             "UPDN" : ["DN","UP","DN","UP"],
             "time" : [1,1,2,10],
             "packet" : [1,2,2,5]

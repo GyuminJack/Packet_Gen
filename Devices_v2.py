@@ -40,9 +40,9 @@ def time_plus_packet(_start_time, _finish_time, packet_list, max_trials):
         time_gap = (_finish_time - _start_time).total_seconds()
         selected_time = list(np.random.randint(0, time_gap, size = max_trials))
         selected_time.sort()
-        selected_time[0] = 0
+        # selected_time[0] = 0
     else:
-        # 시작시간과 종료시간이 같은 경우는 반복작업의 경우만 해당.
+        # 반복작업의 경우 시작시간과 종료시간 같음.
         # 해당 경우에는 0~59초 사이에 하나의 숫자만 선택
         selected_time = list(np.random.randint(0, 59, size = max_trials))
     
@@ -63,13 +63,17 @@ def time_plus_packet(_start_time, _finish_time, packet_list, max_trials):
     all_time = []
     packets = []
     for i, in_time in enumerate(new_time_list):
+        session_no = int(np.random.choice(SESSION_ID_RANGE))
+        SESSION_ID_RANGE.remove(session_no)
         for packet in packet_list:
+            packet[-2] = session_no
             cost_time = packet[0]
             _trial = math.ceil(cost_time)
             for _ in range(_trial):
                 # 초단위로 패킷을 구분해서 생성.
                 plus_time = (in_time + timedelta(seconds = 1)).strftime('%Y-%m-%d %H:%M:%S')
-                packets += [[plus_time] + packet[1:-3] + [packet[-3]/_trial] + packet[-2:]]
+                each_packet = [[plus_time] + packet[1:-3] + [packet[-3]/_trial] + packet[-2:]]
+                packets += each_packet 
                 in_time = (in_time + timedelta(seconds = 1))
 
     all_time += packets
