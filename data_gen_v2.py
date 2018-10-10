@@ -1,6 +1,8 @@
 from Devices_v2 import *
 import json
+import pandas as pd
 import re
+import os
 # 각 user를 define 하기 위한 class
 class user_type:
     def __init__(self):
@@ -33,7 +35,7 @@ class Home():
     # 개별 Device들의 설정정보를 불러오고 IP / Port 설정
     def device_setting(self, device_list):
         try:
-            with open('DeviceConfig.1.json','r') as f:
+            with open('./Config/DeviceConfig.json','r') as f:
                 config = json.load(f)
         except:
             print("DeviceConfig error")
@@ -51,7 +53,7 @@ class Home():
     def user_setting(self,costum_user_list):
         def make_user_list():
             try:
-                with open('UserConfig_1.json','r') as f:
+                with open('./Config/UserConfig.json','r') as f:
                     self.user_config = json.load(f)
             except:
                 print("UserConfig error")
@@ -143,7 +145,7 @@ class Home():
                                                         dstport[i], fs['UPDN'], fs['time'], fs['packet'])
                                     standard_packet_list += new_task
                             except:
-                                print("{} has no Routine".format[function_name])
+                                print("{} has no routine".format[function_name])
                             device_packet_dict[function_name] = standard_packet_list
 
                         elif (self.selected_device_dict[device_name][function_name]["Task"] == "Streaming") and (max_stream_time>0):
@@ -213,7 +215,7 @@ class Home():
             except:
                 pass
         print("Common / Streaming Task Finish")
-        print("Repeatly Task Start")
+        print("Repeatedly Task Start")
         # 반복작업에 대한 패킷 생성 : itertime_action 메서드 사용
         for device_name in self.selected_device_dict:
             Device_IP = self.selected_device_dict[device_name]["Device IP"] 
@@ -221,7 +223,7 @@ class Home():
             Device_port = int(np.random.choice(Device_Portrange))
             for function_name in in_home_device_set[device_name]:
                 if function_name not in ['Device IP','Device Portrange']:
-                    if in_home_device_set[device_name][function_name]["Task"] == "Repeatly":
+                    if in_home_device_set[device_name][function_name]["Task"] == "Repeatedly":
                         repeat_work = in_home_device_set[device_name][function_name]["Sessions"]
                         try:
                             for each_session in repeat_work["Routine"]:
@@ -238,14 +240,14 @@ class Home():
                                 all_packet_list += firmware_packet
                         except:
                             print("error")
-        print("Repeatly Task Finish")
+        print("Repeatedly Task Finish")
         return all_packet_list
     
 def home_set():
     Home_class_list = []
     Home_packet_dict = {}
     try:
-        with open('HomeConfig.json','r') as f:
+        with open('./Config/HomeConfig.json','r') as f:
             home_config = json.load(f)
     except:
         print("HomeConfig error")
@@ -275,7 +277,9 @@ def home_set():
 
 
 if __name__ == "__main__":
-    import pandas as pd
+    outdir = './PacketGen'
+    if not os.path.exists(outdir):
+        os.mkdir(outdir)
     home_list, home_packet_dict = home_set()
     for each_home in home_list:
         home_name = each_home.Home_name
@@ -283,7 +287,10 @@ if __name__ == "__main__":
             columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE", "Session_id","vendor"])
         df = df.sort_values(by = 'Time')
         df = df[df.PacketSIZE>0]
-        df.to_csv("{}.log".format(home_name),index=False)
+        df['PacketSIZE'] = df['PacketSIZE'].apply(math.ceil)
+        outname = "{}.log".format(home_name)
+        fullname = os.path.join(outdir, outname)    
+        df.to_csv(fullname,index=False)
         
     
  

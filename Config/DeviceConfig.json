@@ -26,6 +26,21 @@
                 "Routine" : ["Session1"]
             }
         },
+        "s_firmware_check" : {
+            "Task" : "Repeatedly",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "13.234.223.",
+                    "PortRange" : [800,1900],
+                    "UPDN" : ["UP","DN"],
+                    "time" : [1,1],
+                    "packet" : [1,1],
+                    "interval1" : 15,
+                    "interval2" : "min"
+                },
+                "Routine" : ["Session1"]
+            }
+        },
         "s_music_stream" : {
             "Task" : "Streaming",
             "Sessions" : {
@@ -37,7 +52,7 @@
                     "packet" : [1,1]
                 },
                 "Streaming" : {
-                    "Server" : "112.234.23.",
+                    "Server" : "13.23.523.",
                     "PortRange" : [502,5601],
                     "UPDN" : ["UP","DN"],
                     "time" : [1,20],
@@ -51,7 +66,7 @@
     },
     "Home_camera" : {
         "Hc_Normal" : {
-            "Task" : "Repeatly",
+            "Task" : "Repeatedly",
             "Sessions" : {
                 "Session1" : {
                     "Server" : "13.228.14.18",
@@ -88,7 +103,7 @@
     },
     "Smart_airconditioner" : {
         "Sa_upload" : {
-            "Task" : "Repeatly",
+            "Task" : "Repeatedly",
             "Sessions" : {
                 "Session1" : {
                     "Server" : "132.214.243.231",
