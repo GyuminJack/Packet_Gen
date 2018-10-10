@@ -1,33 +1,47 @@
 # Packet_Gen
 
-세션별 가상 패킷을 만들어 내기 위한 코드.
+세션별로 묶인 가상 데이터 셋을 만들어 내기 위한 프로그램.
+- Config 폴더 내 [Device / User / Home] json을 수정하고 실행
+- Output : csv ( columns = Time / srcIP / srcPort / dstIP / dstPort / Packetsize / SessionID / vendor ) 
 
-전체적인 구성은 다음과 같다.
-
-Configuration 
-1. Device setting
-  - 기기는 기능의 합으로 규정된다.
-  - 각각의 기능을 정의한다.
-  - "traffic_check" : {
-            "Server" : "123.234.23.",
-            "PortRange" : [300,301],
-            "UPDN" : ["UP","DN","UP","DN"],
-            "time" : [1,2,3,4],
-            "packet" : [1,1,2,3]
-            
-2. User Setting
-  - 각 유저는 행동 패턴의 합으로 규정된다.
-  - 행동패턴은 주중과 주말로 나누어 구성한다.
-  -  "USER1" : { 
-        "weekday" : {
-            "traffic_check" : {"Hour":7, "Min":59},
-            "find_info" : {"Hour":10, "Min":0}
-        },
-        "weekend" : {
-            "traffic_check" : {"Hour":1, "Min":10},
-            "find_info" : {"Hour":2, "Min":0}
-        }
-
-3. Home Setting
-  - 각 Home은 고유 IP와 PORT를 가진다.
+### Configuration 
+1. HomeConfig.json Setting
+  - IP : 개별 기기에 할당할 아이피의 Base IP (c class)
+  - from_date : 패킷 생성의 시작 시간 
+  - to_date : 패킷 생성의 종료 시간
+  - Devices :  해당 패킷 생성 환경에 두게 될 Devices name / 각각의 Device들은 DeviceConfig.json에 정의 되어야함
+  - User_setting : 해당 패킷 생성 환경에 두게 될 User type / 각각의 User type은 UserConfig.json에 정의 되어야함
   
+2. DeviceConfig.json Setting
+  - Device는 개별 기능들의 묶음으로 하나의 기기가 정의됨
+  - 따라서 개별 기능들을 정의하는 것이 한개의 Device를 만들어 내는 것임.
+  - Json의 구조는 "Device name : { Function_name : { Task : [Common / Streaming / Repeatedly], Sessions : [Session_# / Streaming / Routine]의 형태를 가지고 있음
+    - Task 구분
+      - Common의 경우 특정한 시간대에 일어나는 이벤트성 패킷을 정의할 때 사용
+      - Streaming의 경우 Common의 특수한 케이스로 특정시간대에 일어나지만 지속적인 패킷 다운로드가 있는 경우 사용
+      - Repeatly의 경우 일정한 간격으로 발생되는 패킷이 있는 경우 사용
+    - Sessions구분
+      - Session_#는 일반적인 UP/DN으로 이루어진 커넥션
+        - Common Task일 경우의 Session
+          - Server / PortRange / UPDN / time / packet
+        - Repeatedly Task일 경우의 Session
+          - Server / PortRange / UPDN / time / packet / interval1 / interval2
+          - interval1은 아라비아 숫자 / interval2는 시간단위
+      - Streaming의 경우 Task가 Streaming일 경우 사용 되는 커넥션
+        - Server / PortRange / UPDN / time / packet / Song_play_minutes / max_Playing_minutes
+        - Song_play_minutes는 재생 곡들의 평균적인 소요 시간 (분)
+        - max_Playing_miniutes는 스트리밍의 최대 지속 시간(분) 
+        - UserConfig내에 streaming을 사용하는 Useraction이 있는 경우 max_stream_time을 규정지어야함
+        - 스트리밍 기능을 구현하고 싶은 경우 Session_#과 streaming을 순차적으로 사용하면 가능
+
+3. UserConfig.json Setting
+  - User의 경우 특정기기에 대한 명령이 User type을 정의함
+  - Json의 구조는 "User_type : { weekday / weekend : { Task_name : { start_time, finish_time, max_trial ,(max_stream_time)
+  - 개별 Task(Task_name) 를 주어진 시작시간(start_time)과 종료시간(finish_time)내 최대 몇번(max_trial)을 실행한다 라는 구조임.
+  - Task가 streaming 일 경우 최대 스트리밍 시간(max_stream_time)을 지정해 주어야함.
+ 
+ ### Excecution
+ 0. Set Configurations
+ 1. python data_gen_v2.py
+ 2. After Executing it, output files are in ./PacketGen/Home(1,2,3..).log
+ 3. (optional plotting function) python Plotting.py {logfile} {outname} {resample_seconds}
