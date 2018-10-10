@@ -29,6 +29,7 @@
           - interval1은 아라비아 숫자 / interval2는 시간단위
       - Streaming의 경우 Task가 Streaming일 경우 사용 되는 커넥션
         - Server / PortRange / UPDN / time / packet / Song_play_minutes / max_Playing_minutes
+        - time의 내 마지막 정의 되는 소요시간이 패킷의 다운로드 시간으로 규정됨
         - Song_play_minutes는 재생 곡들의 평균적인 소요 시간 (분)
         - max_Playing_miniutes는 스트리밍의 최대 지속 시간(분) 
         - UserConfig내에 streaming을 사용하는 Useraction이 있는 경우 max_stream_time을 규정지어야함
