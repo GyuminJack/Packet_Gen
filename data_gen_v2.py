@@ -1,5 +1,6 @@
 from Devices_v2 import *
 import json
+import re
 # 각 user를 define 하기 위한 class
 class user_type:
     def __init__(self):
@@ -77,6 +78,7 @@ class Home():
         self.to_date = to_date
         self.time_gap = to_date - from_date
         # make all day routine
+        print("User pattern Making start")
         user_action_making = []
         for i, user in enumerate(self.user_list):
             # print(user)
@@ -108,19 +110,16 @@ class Home():
                         user_action_making.append([action_time, finish_time, action, trial])
                     action_time += timedelta(days=1)
         all_user_pattern = user_action_making
-
+        print("User pattern Making finish")
 
         # Device의 기능별 기본 단위 패킷을 생성
+        print("Device standard packet Making start")
         device_packet_dict = {}
         in_home_device_set = self.selected_device_dict
         all_packet_list = []
-        import re
-        for s_time, f_time, work, max_trials in all_user_pattern:
-            try:
-                work = re.sub("[_]+[0-9]","",work)
-            except:
-                pass
+        print("Common / Streaming Task Start")
 
+        def device_make_packet():
             for device_name in self.selected_device_dict:
                 Device_IP = self.selected_device_dict[device_name]["Device IP"]
                 Device_Portrange = self.selected_device_dict[device_name]["Device Portrange"]
@@ -157,34 +156,56 @@ class Home():
                                                             fs['Server']+str(np.random.randint(0,256)), 
                                                             dstport[i], fs['UPDN'], fs['time'], fs['packet'])
                                         standard_packet_list += new_task
-                                    # 스트리밍 다운로드만을 가지고 있는 패킷
+                                    # 스트리밍 다운로드를 하는 패킷
                                     elif each_session == 'Streaming':
                                         stream_packet_list = []
                                         fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
-                                        srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
-                                        dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
-                                        all_using_time = int(np.random.randint(0,720))
-                                        each_playing_time = fs['time'][-1]
-                                        all_play = int(all_using_time / each_playing_time)
-                                        j = 1
-                                        ip_last = str(np.random.randint(0,256)) #특정 서버에서 작업이 된다면 D-class로 수정 필요
-                                        for _ in range(all_play):
-                                            new_task = make_function(device_name, Device_IP, srcport[j], 
-                                                                # Streaming Task의 IP세팅이 C class 라고 판단하는 부분
-                                                                fs['Server']+ip_last, 
-                                                                dstport[j], fs['UPDN'], fs['time'], fs['packet'])
+                                        #곡 종료 후 대기 상황을
+                                        fs['time'].append(1)
+                                        fs['UPDN'].append("UP")
+                                        fs['packet'].append(0)
+                                        srcport = list(np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1))[0]
+                                        dstport = list(np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1))[0]
+                                        song_play_seconds = int(np.random.normal(fs['Song_play_minutes']*60,25))
+                                        max_playing_seconds = int(np.random.normal(fs['max_Playing_minutes']*60,10))
+                                        N_of_playing = int(max_playing_seconds/song_play_seconds)
+                                        song_play_time_list = [int(j) for j in np.random.normal(song_play_seconds,25,size = N_of_playing)]
+                                        all_playing = 0
+                                        for k, song_time in enumerate(song_play_time_list):
+                                            all_playing += song_time
+                                            if all_playing > max_playing_seconds:
+                                                song_play_time_list = song_play_time_list[:k+1]
+                                                break
+
+                                        # 특정 서버에서 작업이 된다면 D-class로 수정 필요
+                                        ip_last = str(np.random.randint(0,256)) 
+                                        for song_play_time in song_play_time_list:
+                                            if song_play_time > 60:
+                                                fs['time'][2] = song_play_time - 21
+                                                new_task = make_function(device_name, Device_IP, srcport,
+                                                                    # Streaming Task의 IP세팅이 C class 라고 판단하는 부분
+                                                                    fs['Server']+ip_last,
+                                                                    dstport, fs['UPDN'], fs['time'], fs['packet'])
                                             stream_packet_list += new_task
                                         standard_packet_list += stream_packet_list
                             except:
-                                print("streaming precess error")
+                                pass
                             device_packet_dict[function_name] = standard_packet_list
-
+                            # pprint(device_packet_dict['s_music_stream'])
+            return device_packet_dict            
+        
+        for s_time, f_time, work, max_trials in all_user_pattern:
             try:
-                made_packet = time_plus_packet(s_time, f_time, device_packet_dict[work], max_trials)
+                work = re.sub("[_]+[0-9]","",work)
+            except:
+                pass
+            try:
+                made_packet = time_plus_packet(s_time, f_time, device_make_packet()[work], max_trials)
                 all_packet_list.append(made_packet)
             except:
                 pass
-
+        print("Common / Streaming Task Finish")
+        print("Repeatly Task Start")
         # 반복작업에 대한 패킷 생성 : itertime_action 메서드 사용
         for device_name in self.selected_device_dict:
             Device_IP = self.selected_device_dict[device_name]["Device IP"] 
@@ -209,6 +230,7 @@ class Home():
                                 all_packet_list += firmware_packet
                         except:
                             print("error")
+        print("Repeatly Task Finish")
         return all_packet_list
     
 def home_set():
@@ -221,8 +243,10 @@ def home_set():
         print("HomeConfig error")
     for k1 in home_config:
         Home_name = k1
+        print("-----------Start {}-----------".format(Home_name))
         IP = home_config[k1]['IP']
-        PortRange = home_config[k1]['PortRange']
+        #사실상 사용되지 않음.
+        PortRange = [0,65536]
         for _date in ['from_date','to_date']:
             a,b,c,d,e,f = home_config[k1][_date].split(",")
             a,b,c,d,e,f = int(a),int(b),int(c),int(d),int(e),int(f)
@@ -237,7 +261,7 @@ def home_set():
         make_home.user_setting(User_list)
         Home_class_list.append(make_home)
         Home_packet_dict[make_home.Home_name] = sum(make_home.packet_generate(from_date, to_date),[])
-        print("finish {}".format(Home_name))
+        print("-----------finish {}-----------".format(Home_name))
     return Home_class_list, Home_packet_dict
 
 
@@ -250,6 +274,7 @@ if __name__ == "__main__":
         df = pd.DataFrame(home_packet_dict[home_name], 
             columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE", "Session_id","vendor"])
         df = df.sort_values(by = 'Time')
+        df = df[df.PacketSIZE>0]
         df.to_csv("{}.log".format(home_name),index=False)
         
     

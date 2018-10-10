@@ -39,10 +39,11 @@
                 "Streaming" : {
                     "Server" : "112.234.23.",
                     "PortRange" : [502,5601],
-                    "UPDN" : ["UP","DN"],
-                    "time" : [1,180],
+                    "UPDN" : ["UP","DN","UP"],
+                    "time" : [1,20],
                     "packet" : [2,5],
-                    "Playingtime" : 30
+                    "Song_play_minutes" : 3,
+                    "max_Playing_minutes" : 30
                 },
                 "Routine" : ["Session1","Streaming"]
             }

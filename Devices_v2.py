@@ -11,7 +11,10 @@ SESSION_ID_RANGE = [i for i in range(65001)]
 #패킷의 사이즈를 리턴하는 함수
 def size_packet(level):
     size_list = [[10,1],[50,4],[250,4],[500,25],[1000,100],[5000,4]]
-    size = np.round(np.random.normal(size_list[level][0],size_list[level][1]))
+    if level == 0:
+        size = 0
+    else:
+        size = np.round(np.random.normal(size_list[level][0],size_list[level][1]))
     return size
 
 #기본 단위 패킷을 생성

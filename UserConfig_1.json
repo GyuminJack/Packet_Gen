@@ -3,14 +3,26 @@
         "weekday" : {
             "s_traffic_check" : {
                 "start_time": 710, 
-                "finish_time":1030, 
-                "max_trial" : 10},
+                "finish_time":730, 
+                "max_trial" : 5},
             "s_music_stream" : {
                 "start_time": 750, 
                 "finish_time" : 830,
-                "max_trial" : 2}
+                "max_trial" : 2},
+            "s_find_info" : {
+                "start_time": 700, 
+                "finish_time" : 730,
+                "max_trial" : 5},
+            "Hc_view_state" : {
+                "start_time": 1400, 
+                "finish_time" : 1800,
+                "max_trial" : 4}
         },
         "weekend" : {
+            "s_music_stream" : {
+                "start_time": 750, 
+                "finish_time" : 830,
+                "max_trial" : 2},
             "Hc_view_state_1" : {
                 "start_time": 730, 
                 "finish_time":1010, 
