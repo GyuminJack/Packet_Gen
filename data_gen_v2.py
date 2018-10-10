@@ -5,7 +5,7 @@ import re
 class user_type:
     def __init__(self):
         self.time_action = []
-    def action_add(self,start_time,finish_time,action,max_trial,day_end):
+    def action_add(self,start_time,finish_time,action,max_trial, max_stream_time, day_end):
         start_hour, start_min = int(str(start_time)[:-2]), int(str(start_time)[-2:])
         finish_hour, finish_min = int(str(finish_time)[:-2]), int(str(finish_time)[-2:])
         min_to_start = start_hour*60 + start_min
@@ -13,7 +13,7 @@ class user_type:
         select_time = int(np.random.randint(min_to_start, min_to_finish, size = 1))
         g_time_H = int(select_time/60)
         g_time_M = (select_time) - 60*g_time_H
-        self.time_action.append([g_time_H,g_time_M, finish_hour, finish_min, action,max_trial,day_end])
+        self.time_action.append([g_time_H,g_time_M, finish_hour, finish_min, action,max_trial,max_stream_time,day_end])
     def time_action(self):
         return self.time_action
 
@@ -66,8 +66,12 @@ class Home():
                             action_start = action_root[key]['start_time']
                             action_finish = action_root[key]['finish_time']
                             action_max_trial = action_root[key]['max_trial']
+                            try:
+                                action_stream_time = action_root[key]['max_stream_time']
+                            except:
+                                action_stream_time = 0
                             action = key
-                            user_config.action_add(action_start, action_finish, action, action_max_trial, _dayend)
+                            user_config.action_add(action_start, action_finish, action, action_max_trial, action_stream_time, _dayend)
                     all_user.append(user_config)
             return all_user
         self.user_list = make_user_list()
@@ -94,20 +98,20 @@ class Home():
             while action_time <= self.to_date:
                 action_de = action_time.weekday()
                 if action_de < 5:
-                    for s_hour, s_min, f_hour, f_min, action, trial, _  in weekday_user_pattern:
+                    for s_hour, s_min, f_hour, f_min, action, trial, max_stream_time, _  in weekday_user_pattern:
                         action_time = datetime(action_time.year, action_time.month,
                                                 action_time.day, s_hour, s_min)
                         finish_time = datetime(action_time.year, action_time.month,
                                                 action_time.day, f_hour, f_min)                                                
-                        user_action_making.append([action_time, finish_time, action, trial])
+                        user_action_making.append([action_time, finish_time, action, trial, max_stream_time])
                     action_time += timedelta(days=1)
                 else:
-                    for s_hour, s_min, f_hour, f_min, action, trial, _   in weekend_user_pattern:
+                    for s_hour, s_min, f_hour, f_min, action, trial, max_stream_time, _   in weekend_user_pattern:
                         action_time = datetime(action_time.year, action_time.month,
                                                 action_time.day, s_hour, s_min)
                         finish_time = datetime(action_time.year, action_time.month,
                                                 action_time.day, f_hour, f_min)    
-                        user_action_making.append([action_time, finish_time, action, trial])
+                        user_action_making.append([action_time, finish_time, action, trial, max_stream_time])
                     action_time += timedelta(days=1)
         all_user_pattern = user_action_making
         print("User pattern Making finish")
@@ -119,7 +123,7 @@ class Home():
         all_packet_list = []
         print("Common / Streaming Task Start")
 
-        def device_make_packet():
+        def device_make_packet(max_stream_time):
             for device_name in self.selected_device_dict:
                 Device_IP = self.selected_device_dict[device_name]["Device IP"]
                 Device_Portrange = self.selected_device_dict[device_name]["Device Portrange"]
@@ -142,7 +146,7 @@ class Home():
                                 print("{} has no Routine".format[function_name])
                             device_packet_dict[function_name] = standard_packet_list
 
-                        elif self.selected_device_dict[device_name][function_name]["Task"] == "Streaming":
+                        elif (self.selected_device_dict[device_name][function_name]["Task"] == "Streaming") and (max_stream_time>0):
                             standard_packet_list = []
                             try:
                                 for i, each_session in enumerate(self.selected_device_dict[device_name][function_name]['Sessions']['Routine']):
@@ -158,18 +162,21 @@ class Home():
                                         standard_packet_list += new_task
                                     # 스트리밍 다운로드를 하는 패킷
                                     elif each_session == 'Streaming':
+                                        
                                         stream_packet_list = []
                                         fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
-                                        #곡 종료 후 대기 상황을
+                                        #곡 종료 후 대기 상황
                                         fs['time'].append(1)
                                         fs['UPDN'].append("UP")
                                         fs['packet'].append(0)
                                         srcport = list(np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1))[0]
                                         dstport = list(np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1))[0]
                                         song_play_seconds = int(np.random.normal(fs['Song_play_minutes']*60,25))
-                                        max_playing_seconds = int(np.random.normal(fs['max_Playing_minutes']*60,10))
+                                        max_playing_seconds = int(np.random.normal(max_stream_time*60,10))
+                                        
                                         N_of_playing = int(max_playing_seconds/song_play_seconds)
                                         song_play_time_list = [int(j) for j in np.random.normal(song_play_seconds,25,size = N_of_playing)]
+
                                         all_playing = 0
                                         for k, song_time in enumerate(song_play_time_list):
                                             all_playing += song_time
@@ -179,9 +186,10 @@ class Home():
 
                                         # 특정 서버에서 작업이 된다면 D-class로 수정 필요
                                         ip_last = str(np.random.randint(0,256)) 
-                                        for song_play_time in song_play_time_list:
+
+                                        for song_play_time in song_play_time_list:                                           
                                             if song_play_time > 60:
-                                                fs['time'][2] = song_play_time - 21
+                                                fs['time'][2] = song_play_time - (fs['time'][0]+fs['time'][1])
                                                 new_task = make_function(device_name, Device_IP, srcport,
                                                                     # Streaming Task의 IP세팅이 C class 라고 판단하는 부분
                                                                     fs['Server']+ip_last,
@@ -194,13 +202,13 @@ class Home():
                             # pprint(device_packet_dict['s_music_stream'])
             return device_packet_dict            
         
-        for s_time, f_time, work, max_trials in all_user_pattern:
+        for s_time, f_time, work, max_trials, max_stream_time in all_user_pattern:
             try:
                 work = re.sub("[_]+[0-9]","",work)
             except:
                 pass
             try:
-                made_packet = time_plus_packet(s_time, f_time, device_make_packet()[work], max_trials)
+                made_packet = time_plus_packet(s_time, f_time, device_make_packet(max_stream_time)[work], max_trials)
                 all_packet_list.append(made_packet)
             except:
                 pass

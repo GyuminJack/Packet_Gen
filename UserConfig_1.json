@@ -4,10 +4,11 @@
             "s_traffic_check" : {
                 "start_time": 710, 
                 "finish_time":730, 
-                "max_trial" : 5},
+                "max_trial" : 4},
             "s_music_stream" : {
                 "start_time": 750, 
                 "finish_time" : 830,
+                "max_stream_time" : 40,
                 "max_trial" : 2},
             "s_find_info" : {
                 "start_time": 700, 
@@ -22,6 +23,7 @@
             "s_music_stream" : {
                 "start_time": 750, 
                 "finish_time" : 830,
+                "max_stream_time" : 40,
                 "max_trial" : 2},
             "Hc_view_state_1" : {
                 "start_time": 730, 
