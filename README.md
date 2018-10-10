@@ -4,6 +4,17 @@
 - Config 폴더 내 [Device / User / Home] json을 수정하고 실행
 - Output : csv ( columns = Time / srcIP / srcPort / dstIP / dstPort / Packetsize / SessionID / vendor ) 
 
+### 데이터 생성 규칙
+- 각 기능이 실행되는 시간을 중심으로 정규분포를 만들고 랜덤추출을 통해 실행 시간 설정
+- 펌웨어 업데이트의 경우 랜덤하게 펌웨어 다운로드 여부를 확인하고 펌웨어 다운로드 패킷을 생성
+- 연속되어 실행되는 기능의 경우 직전 작업이 끝나자 마자 동일한 방식으로 실행
+- 기본 패킷의 추출 단위는 1초단위로 설정
+- 세션 넘버는 65000번까지 랜덤 추출
+- 1초 이상 소요되는 작업의 경우 총 다운로드 패킷에 대해 1초단위로 나누어 전송
+- 사용자의 기기 사용을 구분하기 위해 각 기기내 기능 명앞에 해당 장비 이름 삽입
+- 기기에서 발생하는 serverIP의 경우 c 클래스로 적용하지만 펌웨어의 경우 특정 IP로 구성
+- 각 세션에서 발생되는 포트는 해당 기기의 포트 범위에서 난수 생성 하지만 포트 범위가 1 차이가 날 경우 앞 숫자의 포트로 고정
+
 ### Configuration 
 1. HomeConfig.json Setting
   - IP : 개별 기기에 할당할 아이피의 Base IP (c class)
@@ -34,6 +45,8 @@
         - max_Playing_miniutes는 스트리밍의 최대 지속 시간(분) 
         - UserConfig내에 streaming을 사용하는 Useraction이 있는 경우 max_stream_time을 규정지어야함
         - 스트리밍 기능을 구현하고 싶은 경우 Session_#과 streaming을 순차적으로 사용하면 가능
+      - Routine은 해당 기능이 순차적으로 어떤 세션을 가지는 지 규정.
+        - 실제 패킷 생성시에는 Routine을 읽은 후에 하위 커넥션들을 찾고 이를 단위 패킷으로 구성해 나감.
 
 3. UserConfig.json Setting
   - User의 경우 특정기기에 대한 명령이 User type을 정의함
