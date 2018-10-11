@@ -15,6 +15,7 @@
 - 기기에서 발생하는 serverIP의 경우 c 클래스로 적용하지만 펌웨어의 경우 특정 IP로 구성
 - 각 세션에서 발생되는 포트는 해당 기기의 포트 범위에서 난수 생성 하지만 포트 범위가 1 차이가 날 경우 앞 숫자의 포트로 고정
 - 중복작업을 처리하기 위해서 Taskname_#와 같은 표기를 한다.
+
 ### Configuration 
 1. HomeConfig.json Setting
   - IP : 개별 기기에 할당할 아이피의 Base IP (c class)
@@ -53,6 +54,7 @@
   - Json의 구조는 "User_type : { weekday / weekend : { Task_name : { start_time, finish_time, max_trial ,(max_stream_time)
   - 개별 Task(Task_name) 를 주어진 시작시간(start_time)과 종료시간(finish_time)내 최대 몇번(max_trial)을 실행한다 라는 구조임.
   - Task가 streaming 일 경우 최대 스트리밍 시간(max_stream_time)을 지정해 주어야함.
+  - Streming의 경우 최대 스트리밍 시간 만큼 작업이 지속될 수 있음.
  
  ### Excecution
  0. Set Configurations
