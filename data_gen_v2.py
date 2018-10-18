@@ -140,10 +140,19 @@ class Home():
                                     fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
                                     srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
                                     dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
+                                    input_dstip_list = fs['Server'].split(".")
+                                    new_ip = []
+                                    for i in range(4):
+                                        try:
+                                            if len(input_dstip_list[i]) > 0:
+                                                new_ip.append(input_dstip_list[i])
+                                            else:
+                                                new_ip.append(str(int(np.random.randint(0,256,size=1))))
+                                        except:
+                                            new_ip.append(str(int(np.random.randint(0,256,size=1))))
+                                    dst_ip = ".".join(new_ip)
                                     new_task = make_function(device_name, Device_Mac, srcport[i], 
-                                                        # Common Task의 IP세팅이 C class 라고 판단하는 부분
-                                                        fs['Server']+str(np.random.randint(0,256)), 
-                                                        dstport[i], fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
+                                                        dst_ip, dstport[i], fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
                                     standard_packet_list += new_task
                             except:
                                 print("{} has no routine".format[function_name])
@@ -158,14 +167,22 @@ class Home():
                                         fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
                                         srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
                                         dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
+                                        input_dstip_list = fs['Server'].split(".")
+                                        new_ip = []
+                                        for i in range(4):
+                                            try:
+                                                if len(input_dstip_list[i]) > 0:
+                                                    new_ip.append(input_dstip_list[i])
+                                                else:
+                                                    new_ip.append(str(int(np.random.randint(0,256,size=1))))
+                                            except:
+                                                new_ip.append(str(int(np.random.randint(0,256,size=1))))
+                                        dst_ip = ".".join(new_ip)
                                         new_task = make_function(device_name, Device_Mac, srcport[i], 
-                                                            # Streaming Task의 IP세팅이 C class 라고 판단하는 부분
-                                                            fs['Server']+str(np.random.randint(0,256)), 
-                                                            dstport[i], fs['UPDN'],fs['Protocol'], fs['time'], fs['packet'])
+                                                            dst_ip, dstport[i], fs['UPDN'],fs['Protocol'], fs['time'], fs['packet'])
                                         standard_packet_list += new_task
                                     # 스트리밍 다운로드를 하는 패킷
                                     elif each_session == 'Streaming':
-                                        
                                         stream_packet_list = []
                                         fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
                                         #곡 종료 후 대기 상황
@@ -187,15 +204,24 @@ class Home():
                                                 song_play_time_list = song_play_time_list[:k+1]
                                                 break
 
-                                        # 특정 서버에서 작업이 된다면 D-class로 수정 필요
-                                        ip_last = str(np.random.randint(0,256)) 
+                                        input_dstip_list = fs['Server'].split(".")
+                                        new_ip = []
+                                        for i in range(4):
+                                            try:
+                                                if len(input_dstip_list[i]) > 0:
+                                                    new_ip.append(input_dstip_list[i])
+                                                else:
+                                                    new_ip.append(str(int(np.random.randint(0,256,size=1))))
+                                            except:
+                                                new_ip.append(str(int(np.random.randint(0,256,size=1))))
+                                        dst_ip = ".".join(new_ip)
 
                                         for song_play_time in song_play_time_list:                                           
                                             if song_play_time > 60:
                                                 fs['time'][2] = song_play_time - (fs['time'][0]+fs['time'][1])
                                                 new_task = make_function(device_name, Device_Mac, srcport,
                                                                     # Streaming Task의 IP세팅이 C class 라고 판단하는 부분
-                                                                    fs['Server']+ip_last,
+                                                                    dst_ip,
                                                                     dstport, fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
                                             stream_packet_list += new_task
                                         standard_packet_list += stream_packet_list
@@ -204,7 +230,7 @@ class Home():
                             device_packet_dict[function_name] = standard_packet_list
                             # pprint(device_packet_dict['s_music_stream'])
             return device_packet_dict            
-        
+
         for s_time, f_time, work, max_trials, max_stream_time in all_user_pattern:
             try:
                 work = re.sub("[_]+[0-9]","",work)
@@ -229,9 +255,20 @@ class Home():
                         try:
                             for each_session in repeat_work["Routine"]:
                                 session = repeat_work[each_session]
+                                input_dstip_list = session['Server'].split(".")
+                                new_ip = []
+                                for i in range(4):
+                                    try:
+                                        if len(input_dstip_list[i]) > 0:
+                                            new_ip.append(input_dstip_list[i])
+                                        else:
+                                            new_ip.append(str(int(np.random.randint(0,256,size=1))))
+                                    except:
+                                        new_ip.append(str(int(np.random.randint(0,256,size=1))))
+                                dst_ip = ".".join(new_ip)
                                 firmware_packet = make_function(device_name, Device_MAC, Device_Portrange, 
                                                                 #반복 작업의 경우 서버는 D class
-                                                                session['Server'], session['PortRange'], 
+                                                                dst_ip, session['PortRange'], 
                                                                 session['UPDN'], session['Protocol'], session['time'], session['packet'])
                                 
                                 interval_time = session['interval1']
