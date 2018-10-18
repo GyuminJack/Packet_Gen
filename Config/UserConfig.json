@@ -7,7 +7,7 @@
                 "max_trial" : 4},
             "s_music_stream" : {
                 "start_time": 750, 
-                "finish_time" : 830,
+                "finish_time" : 800,
                 "max_stream_time" : 40,
                 "max_trial" : 2},
             "s_find_info" : {
@@ -15,9 +15,23 @@
                 "finish_time" : 730,
                 "max_trial" : 5},
             "Hc_view_state" : {
-                "start_time": 1400, 
+                "start_time": 1400,
                 "finish_time" : 1800,
-                "max_trial" : 4}
+                "max_trial" : 4},
+            "s_music_stream_1" : {
+                "start_time": 1750, 
+                "finish_time" : 2000,
+                "max_stream_time" : 80,
+                "max_trial" : 1},
+            "Sr_view_state" : {
+                "start_time": 1650, 
+                "finish_time" : 1800,
+                "max_trial" : 5,
+                "max_stream_time" : 3},
+            "Sr_searcing" : {
+                "start_time": 1750, 
+                "finish_time" : 2000,
+                "max_trial" : 8}     
         },
         "weekend" : {
             "s_music_stream" : {

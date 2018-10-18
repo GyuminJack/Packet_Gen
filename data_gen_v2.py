@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import re
 import os
+import mac_address_maker
 # 각 user를 define 하기 위한 class
 class user_type:
     def __init__(self):
@@ -31,21 +32,21 @@ class Home():
         self.IP = IP
         global IP_range
         self.PORT_RANGE = PORT_RANGE
-
+        self.Mac_Address_list = mac_address_maker.mac_address_maker(300)
     # 개별 Device들의 설정정보를 불러오고 IP / Port 설정
     def device_setting(self, device_list):
         try:
             with open('./Config/DeviceConfig.json','r') as f:
-                config = json.load(f)
+                self.all_device_dict = json.load(f)
         except:
             print("DeviceConfig error")
-        self.all_device_dict = config
         self.selected_device_dict = {}
         for k in self.all_device_dict:
             if k in device_list:
                 self.selected_device_dict[k] = copy.deepcopy(self.all_device_dict[k])
                 selected_device_ip = int(np.random.choice(IP_range))
                 self.selected_device_dict[k]["Device IP"] = self.IP + "." + str(selected_device_ip)
+                self.selected_device_dict[k]["MAC_Addr"] = self.Mac_Address_list[selected_device_ip]
                 self.selected_device_dict[k]["Device Portrange"] = [0,65535]
                 IP_range.remove(selected_device_ip)
 
@@ -127,11 +128,11 @@ class Home():
 
         def device_make_packet(max_stream_time):
             for device_name in self.selected_device_dict:
-                Device_IP = self.selected_device_dict[device_name]["Device IP"]
+                Device_Mac = self.selected_device_dict[device_name]["MAC_Addr"]
                 Device_Portrange = self.selected_device_dict[device_name]["Device Portrange"]
                 Device_port = int(np.random.choice(Device_Portrange))
                 for function_name in self.selected_device_dict[device_name]:
-                    if function_name not in ['Device IP','Device Portrange']:
+                    if function_name not in ['Device IP','Device Portrange','MAC_Addr']:
                         if self.selected_device_dict[device_name][function_name]["Task"] == "Common":
                             standard_packet_list = [] 
                             try:
@@ -139,10 +140,10 @@ class Home():
                                     fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
                                     srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
                                     dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
-                                    new_task = make_function(device_name, Device_IP, srcport[i], 
+                                    new_task = make_function(device_name, Device_Mac, srcport[i], 
                                                         # Common Task의 IP세팅이 C class 라고 판단하는 부분
                                                         fs['Server']+str(np.random.randint(0,256)), 
-                                                        dstport[i], fs['UPDN'], fs['time'], fs['packet'])
+                                                        dstport[i], fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
                                     standard_packet_list += new_task
                             except:
                                 print("{} has no routine".format[function_name])
@@ -157,10 +158,10 @@ class Home():
                                         fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
                                         srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
                                         dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
-                                        new_task = make_function(device_name, Device_IP, srcport[i], 
+                                        new_task = make_function(device_name, Device_Mac, srcport[i], 
                                                             # Streaming Task의 IP세팅이 C class 라고 판단하는 부분
                                                             fs['Server']+str(np.random.randint(0,256)), 
-                                                            dstport[i], fs['UPDN'], fs['time'], fs['packet'])
+                                                            dstport[i], fs['UPDN'],fs['Protocol'], fs['time'], fs['packet'])
                                         standard_packet_list += new_task
                                     # 스트리밍 다운로드를 하는 패킷
                                     elif each_session == 'Streaming':
@@ -177,7 +178,7 @@ class Home():
                                         max_playing_seconds = int(np.random.normal(max_stream_time*60,10))
                                         
                                         N_of_playing = int(max_playing_seconds/song_play_seconds)
-                                        song_play_time_list = [int(j) for j in np.random.normal(song_play_seconds,25,size = N_of_playing)]
+                                        song_play_time_list = [int(j) for j in np.random.normal(song_play_seconds,5,size = N_of_playing)]
 
                                         all_playing = 0
                                         for k, song_time in enumerate(song_play_time_list):
@@ -192,10 +193,10 @@ class Home():
                                         for song_play_time in song_play_time_list:                                           
                                             if song_play_time > 60:
                                                 fs['time'][2] = song_play_time - (fs['time'][0]+fs['time'][1])
-                                                new_task = make_function(device_name, Device_IP, srcport,
+                                                new_task = make_function(device_name, Device_Mac, srcport,
                                                                     # Streaming Task의 IP세팅이 C class 라고 판단하는 부분
                                                                     fs['Server']+ip_last,
-                                                                    dstport, fs['UPDN'], fs['time'], fs['packet'])
+                                                                    dstport, fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
                                             stream_packet_list += new_task
                                         standard_packet_list += stream_packet_list
                             except:
@@ -218,20 +219,21 @@ class Home():
         print("Repeatedly Task Start")
         # 반복작업에 대한 패킷 생성 : itertime_action 메서드 사용
         for device_name in self.selected_device_dict:
-            Device_IP = self.selected_device_dict[device_name]["Device IP"] 
+            Device_MAC = self.selected_device_dict[device_name]["MAC_Addr"] 
             Device_Portrange = self.selected_device_dict[device_name]["Device Portrange"]
             Device_port = int(np.random.choice(Device_Portrange))
             for function_name in in_home_device_set[device_name]:
-                if function_name not in ['Device IP','Device Portrange']:
+                if function_name not in ['Device IP','Device Portrange',"MAC_Addr"]:
                     if in_home_device_set[device_name][function_name]["Task"] == "Repeatedly":
                         repeat_work = in_home_device_set[device_name][function_name]["Sessions"]
                         try:
                             for each_session in repeat_work["Routine"]:
                                 session = repeat_work[each_session]
-                                firmware_packet = make_function(device_name, Device_IP, Device_Portrange, 
+                                firmware_packet = make_function(device_name, Device_MAC, Device_Portrange, 
                                                                 #반복 작업의 경우 서버는 D class
                                                                 session['Server'], session['PortRange'], 
-                                                                session['UPDN'], session['time'], session['packet'])
+                                                                session['UPDN'], session['Protocol'], session['time'], session['packet'])
+                                
                                 interval_time = session['interval1']
                                 interval_key = session['interval2']
                                 firmware_packet = itertime_action(from_date, to_date,
@@ -284,7 +286,7 @@ if __name__ == "__main__":
     for each_home in home_list:
         home_name = each_home.Home_name
         df = pd.DataFrame(home_packet_dict[home_name], 
-            columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","PacketSIZE", "Session_id","vendor"])
+            columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","Protocol","PacketSIZE", "Session_id","vendor"])
         df = df.sort_values(by = 'Time')
         df = df[df.PacketSIZE>0]
         df['PacketSIZE'] = df['PacketSIZE'].apply(math.ceil)

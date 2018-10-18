@@ -2,16 +2,8 @@
     "Home1" : {
         "IP" : "192.168.0",
         "from_date" : "2018,1,1,0,0,0",
-        "to_date" : "2018,1,10,0,0,0",
-        "Devices" : ["Home_camera","SK_NUGU","Smart_airconditioner"],
-        "User_setting" : ["USER1","USER2"]
-    },
-    "Home2" : {
-        "IP" : "192.168.0",
-        "from_date" : "2018,1,1,0,0,0",
-        "to_date" : "2018,1,10,0,0,0",
-        "Devices" : ["Home_camera"],
+        "to_date" : "2018,1,5,0,0,0",
+        "Devices" : ["Home_camera","SK_NUGU","Anomaly","Smart_airconditioner","Smart_refregerator"],
         "User_setting" : ["USER1","USER2"]
     }
-        
 }
