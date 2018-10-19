@@ -57,7 +57,8 @@ class user_type:
 # Home 객체를 생성
 
 # c 클래스 이하 3자리를 겹치지 않게 하기 위한 메모리
-IP_range = [i for i in range(1,256)]
+IP_list = []
+mac_list = []
 home_Port_range = [i for i in range(1,65535)]
 
 class Home():
@@ -65,6 +66,7 @@ class Home():
         self.Home_name = HOME_NAME
         self.IP = IP
         global IP_range
+        global mac_list
         self.PORT_RANGE = PORT_RANGE
         self.Mac_Address_list = mac_address_maker.mac_address_maker(300)
     # 개별 Device들의 설정정보를 불러오고 IP / Port 설정
@@ -79,10 +81,14 @@ class Home():
             if k in device_list:
                 self.selected_device_dict[k] = copy.deepcopy(self.all_device_dict[k])
                 self.selected_device_dict[k]["Device IP"] = change_to_ip(self.IP)
-                selected_device_ip = int(self.selected_device_dict[k]["Device IP"].split(".")[3])
+                while self.selected_device_dict[k]["Device IP"] in IP_list:
+                    self.selected_device_dict[k]["Device IP"] = change_to_ip(self.IP)
+                IP_list.append(self.selected_device_dict[k]["Device IP"])
+                selected_device_ip = int(int(self.selected_device_dict[k]["Device IP"].split(".")[3]))
                 self.selected_device_dict[k]["MAC_Addr"] = self.Mac_Address_list[selected_device_ip]
+                mac_list.append(self.selected_device_dict[k]["MAC_Addr"])
                 self.selected_device_dict[k]["Device Portrange"] = [0,65535]
-                IP_range.remove(selected_device_ip)
+                
 
     # 개별 User를 불러오고 해당 유저의 패턴을 생성
     def user_setting(self,costum_user_list):
@@ -303,6 +309,8 @@ def home_set():
         Home_class_list.append(make_home)
         Home_packet_dict[make_home.Home_name] = sum(make_home.packet_generate(from_date, to_date),[])
         print("-----------finish {}-----------".format(Home_name))
+        print(IP_list)
+        print(mac_list)
     return Home_class_list, Home_packet_dict
 
 
