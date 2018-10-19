@@ -13,4 +13,4 @@ import pandas as pd
 file_name = "../PacketGen/Home1.log"
 log_data = pd.read_csv(file_name, index_col=0, parse_dates=True)
 
-print(log_data.SrcIP.value_counts())
+print(log_data.head())

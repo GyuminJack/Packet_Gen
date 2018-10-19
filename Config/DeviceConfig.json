@@ -4,7 +4,7 @@
             "Task" : "Repeatedly",
             "Sessions" : {
                 "Session1" : {
-                    "Server" : "152.323.668.123",
+                    "Server" : "152.323.231.123",
                     "PortRange" : [500,5892],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
