@@ -4,6 +4,40 @@ import pandas as pd
 import re
 import os
 import mac_address_maker
+
+#ip change
+def change_to_ip(_ip):
+    class_dict = {"0":"z","8":"A","16":"B","24":"C"}
+    _split_ip = re.split("[./]",_ip)
+    if len(_split_ip) == 4:
+	    return _ip
+    _base = _split_ip[:4]	
+    for i in range(4):
+    	_base[i] = _base[i]
+    _class = class_dict[_split_ip[-1]]
+    if _class == "z":
+    	first = str(int(np.random.randint(int(_base[0]),256)))
+    	second = str(int(np.random.randint(int(_base[1]),256)))
+    	third = str(int(np.random.randint(int(_base[2]),256)))
+    	fourth = str(int(np.random.randint(int(_base[3]),256)))
+    	total = ".".join([first, second, third, fourth])
+    elif _class == "A":
+    	second = str(int(np.random.randint(int(_base[1]),256)))
+    	third = str(int(np.random.randint(int(_base[2]),256)))
+    	fourth = str(int(np.random.randint(int(_base[3]),256)))
+    	total = ".".join([_base[0], second, third, fourth])
+    elif _class == "B":
+    	third = str(int(np.random.randint(int(_base[2]),256)))
+    	fourth = str(int(np.random.randint(int(_base[3]),256)))
+    	total = ".".join([_base[0], _base[1], third, fourth])
+    elif _class == "C":
+    	fourth = str(int(np.random.randint(int(_base[3]),256)))
+    	total = ".".join([_base[0], _base[1], _base[2], fourth])
+    return total
+        
+        
+
+
 # 각 user를 define 하기 위한 class
 class user_type:
     def __init__(self):
@@ -44,8 +78,8 @@ class Home():
         for k in self.all_device_dict:
             if k in device_list:
                 self.selected_device_dict[k] = copy.deepcopy(self.all_device_dict[k])
-                selected_device_ip = int(np.random.choice(IP_range))
-                self.selected_device_dict[k]["Device IP"] = self.IP + "." + str(selected_device_ip)
+                self.selected_device_dict[k]["Device IP"] = change_to_ip(self.IP)
+                selected_device_ip = int(self.selected_device_dict[k]["Device IP"].split(".")[3])
                 self.selected_device_dict[k]["MAC_Addr"] = self.Mac_Address_list[selected_device_ip]
                 self.selected_device_dict[k]["Device Portrange"] = [0,65535]
                 IP_range.remove(selected_device_ip)
@@ -140,17 +174,7 @@ class Home():
                                     fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
                                     srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
                                     dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
-                                    input_dstip_list = fs['Server'].split(".")
-                                    new_ip = []
-                                    for i in range(4):
-                                        try:
-                                            if len(input_dstip_list[i]) > 0:
-                                                new_ip.append(input_dstip_list[i])
-                                            else:
-                                                new_ip.append(str(int(np.random.randint(0,256,size=1))))
-                                        except:
-                                            new_ip.append(str(int(np.random.randint(0,256,size=1))))
-                                    dst_ip = ".".join(new_ip)
+                                    dst_ip = change_to_ip(fs['Server'])
                                     new_task = make_function(device_name, Device_Mac, srcport[i], 
                                                         dst_ip, dstport[i], fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
                                     standard_packet_list += new_task
@@ -167,17 +191,7 @@ class Home():
                                         fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
                                         srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
                                         dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
-                                        input_dstip_list = fs['Server'].split(".")
-                                        new_ip = []
-                                        for i in range(4):
-                                            try:
-                                                if len(input_dstip_list[i]) > 0:
-                                                    new_ip.append(input_dstip_list[i])
-                                                else:
-                                                    new_ip.append(str(int(np.random.randint(0,256,size=1))))
-                                            except:
-                                                new_ip.append(str(int(np.random.randint(0,256,size=1))))
-                                        dst_ip = ".".join(new_ip)
+                                        dst_ip = change_to_ip(fs['Server'])
                                         new_task = make_function(device_name, Device_Mac, srcport[i], 
                                                             dst_ip, dstport[i], fs['UPDN'],fs['Protocol'], fs['time'], fs['packet'])
                                         standard_packet_list += new_task
@@ -204,17 +218,7 @@ class Home():
                                                 song_play_time_list = song_play_time_list[:k+1]
                                                 break
 
-                                        input_dstip_list = fs['Server'].split(".")
-                                        new_ip = []
-                                        for i in range(4):
-                                            try:
-                                                if len(input_dstip_list[i]) > 0:
-                                                    new_ip.append(input_dstip_list[i])
-                                                else:
-                                                    new_ip.append(str(int(np.random.randint(0,256,size=1))))
-                                            except:
-                                                new_ip.append(str(int(np.random.randint(0,256,size=1))))
-                                        dst_ip = ".".join(new_ip)
+                                        dst_ip = change_to_ip(fs['Server'])
 
                                         for song_play_time in song_play_time_list:                                           
                                             if song_play_time > 60:
@@ -254,28 +258,16 @@ class Home():
                         repeat_work = in_home_device_set[device_name][function_name]["Sessions"]
                         try:
                             for each_session in repeat_work["Routine"]:
-                                session = repeat_work[each_session]
-                                input_dstip_list = session['Server'].split(".")
-                                new_ip = []
-                                for i in range(4):
-                                    try:
-                                        if len(input_dstip_list[i]) > 0:
-                                            new_ip.append(input_dstip_list[i])
-                                        else:
-                                            new_ip.append(str(int(np.random.randint(0,256,size=1))))
-                                    except:
-                                        new_ip.append(str(int(np.random.randint(0,256,size=1))))
-                                dst_ip = ".".join(new_ip)
+                                fs = repeat_work[each_session]
+                                dst_ip = change_to_ip(fs['Server'])
                                 firmware_packet = make_function(device_name, Device_MAC, Device_Portrange, 
-                                                                #반복 작업의 경우 서버는 D class
-                                                                dst_ip, session['PortRange'], 
-                                                                session['UPDN'], session['Protocol'], session['time'], session['packet'])
-                                
-                                interval_time = session['interval1']
-                                interval_key = session['interval2']
+                                                                dst_ip, fs['PortRange'], 
+                                                                fs['UPDN'], fs['Protocol'], fs['time'], fs['packet'])
+                                interval_time = fs['interval1']
+                                interval_key = fs['interval2']
                                 firmware_packet = itertime_action(from_date, to_date,
                                                                 interval_time, interval_key,
-                                                                firmware_packet, session['packet'])
+                                                                firmware_packet, fs['packet'])
                                 all_packet_list += firmware_packet
                         except:
                             print("error")

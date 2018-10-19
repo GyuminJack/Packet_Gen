@@ -22,7 +22,7 @@
             "Task" : "Common",
             "Sessions" : {
                 "Session1" : {
-                    "Server" : "13.123.",
+                    "Server" : "13.123.0.0/24",
                     "PortRange" : [300,301],
                     "UPDN" : ["UP","DN","UP","DN"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
@@ -36,7 +36,7 @@
             "Task" : "Common",
             "Sessions" : {
                 "Session1" : {
-                    "Server" : "13.123.",
+                    "Server" : "13.123.0.0/24",
                     "PortRange" : [800,1900],
                     "UPDN" : ["UP","DN","UP","DN"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
@@ -50,7 +50,7 @@
             "Task" : "Repeatedly",
             "Sessions" : {
                 "Session1" : {
-                    "Server" : "13.123.123",
+                    "Server" : "13.123.0.0/24",
                     "PortRange" : [800,1900],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
@@ -66,7 +66,7 @@
             "Task" : "Streaming",
             "Sessions" : {
                 "Session1" : {
-                    "Server" : "13.123.",
+                    "Server" : "13.123.0.0/24",
                     "PortRange" : [502,5601],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
@@ -74,7 +74,7 @@
                     "packet" : [1,1]
                 },
                 "Streaming" : {
-                    "Server" : "13.71.",
+                    "Server" : "13.123.0.0/24",
                     "PortRange" : [502,5601],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
@@ -107,7 +107,7 @@
             "Task" : "Streaming",
             "Sessions" : {
                 "Session1" : {
-                    "Server" : "14.212.15.",
+                    "Server" : "14.212.15.0/24",
                     "PortRange" : [9010,9011],
                     "UPDN" : ["DN","UP","DN","UP"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
@@ -115,7 +115,7 @@
                     "packet" : [1,1,2,2]
                 },
                 "Streaming" : {
-                    "Server" : "14.212.18.",
+                    "Server" : "14.212.18.0/24",
                     "PortRange" : [9020,9021],
                     "UPDN" : ["UP"],
                     "Protocol" :["TCP"],
@@ -164,7 +164,7 @@
             "Task" : "Common",
             "Sessions" : {
                 "Session1" : {
-                    "Server" : "16.234.223.",
+                    "Server" : "16.234.223.0/24",
                     "PortRange" : [2002,2003],
                     "UPDN" : ["DN","UP","DN","UP"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
@@ -212,7 +212,7 @@
             "Task" : "Streaming",
             "Sessions" : {
                 "Session1" : {
-                    "Server" : "17.234",
+                    "Server" : "17.234.0.0/16",
                     "PortRange" : [9010,9011],
                     "UPDN" : ["DN","UP","DN","UP"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
@@ -220,7 +220,7 @@
                     "packet" : [1,1,2,2]
                 },
                 "Streaming" : {
-                    "Server" : "17.234.",
+                    "Server" : "17.234.0.0/16",
                     "PortRange" : [9020,9021],
                     "UPDN" : ["UP"],
                     "Protocol" :["TCP"],
@@ -235,7 +235,7 @@
             "Task" : "Common",
             "Sessions" : {
                 "Session1" : {
-                    "Server" : "132.214.243.",
+                    "Server" : "132.214.243.0/24",
                     "PortRange" : [2002,2003],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
@@ -243,7 +243,7 @@
                     "packet" : [1,3]
                 },
                 "Session2" : {
-                    "Server" : "132.214.243.",
+                    "Server" : "132.214.243.0.24",
                     "PortRange" : [2002,2003],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
