@@ -10,7 +10,7 @@ SESSION_ID_RANGE = [i for i in range(65001)]
 
 #패킷의 사이즈를 리턴하는 함수
 def size_packet(level):
-    size_list = [[10,1],[50,4],[250,4],[500,25],[1000,100],[5000,4]]
+    size_list = [[10,5],[50,5],[250,5],[500,5],[1000,5],[5000,5]]
     if level == 0:
         size = 0
     else:
@@ -18,7 +18,7 @@ def size_packet(level):
     return size
 
 #기본 단위 패킷을 생성
-def make_function(vendor,srcip, srcport, dstip, dstport, udlist, time_list, packet_list):
+def make_function(vendor, srcip, srcport, dstip, dstport, udlist, protocol_list, time_list, packet_list):
     global SESSION_ID_RANGE
     session_id = int(np.random.choice(SESSION_ID_RANGE))
     SESSION_ID_RANGE.remove(session_id)
@@ -26,9 +26,9 @@ def make_function(vendor,srcip, srcport, dstip, dstport, udlist, time_list, pack
     total_packet = []
     for i, ud in enumerate(udlist):
         if ud == "UP":
-            line = [time_list[i]] + [srcip, srcport, dstip, dstport, size_packet(packet_list[i])] + [session_id] + [vendor]
+            line = [time_list[i]] + [srcip, srcport, dstip, dstport, protocol_list[i], size_packet(packet_list[i])] + [session_id] + [vendor]
         elif ud == "DN":
-            line = [time_list[i]] + [dstip, dstport, srcip, srcport, size_packet(packet_list[i])] + [session_id] + [vendor]
+            line = [time_list[i]] + [dstip, dstport, srcip, srcport, protocol_list[i], size_packet(packet_list[i])] + [session_id] + [vendor]
         total_packet += [line]
     return total_packet
 
@@ -96,19 +96,32 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
 
     # 작업마다 세션아이디와 포트를 재설정하기 위해.
     j=0
+    src = list(np.random.randint(packet_list[0][2][0],packet_list[0][2][1], size =100))
+    dst = list(np.random.randint(packet_list[0][4][0],packet_list[0][4][1], size =100))
+
     while time < to_time:
         time = time + timedelta(seconds = change_sec*1)
+        src_port = int(np.random.choice(src,size=1))
+        dst_port = int(np.random.choice(dst,size=1))
         for i, packet in enumerate(packet_list):
-            packet_list[i][5] = size_packet(packet_level[i])
+            packet_list[i][6] = size_packet(packet_level[i])
+            if i % 2 == 0 :
+                packet_list[i][2] = src_port
+                packet_list[i][4] = dst_port
+            else:
+                packet_list[i][2] = dst_port
+                packet_list[i][4] = src_port
         action = time_plus_packet(time, time, packet_list, 1)
-        src = int(np.random.randint(action[0][2][0], action[0][2][1], size=1))
-        dst = int(np.random.randint(action[0][4][0], action[0][4][1], size=1))
-        action[0][2], action[0][4] = src, dst
-        action[1][2], action[1][4] = dst, src
+
+        # action[0][2], action[0][4] = src, dst
+        # action[1][2], action[1][4] = dst, src
         session_id = np.random.choice(SESSION_ID_RANGE)
         SESSION_ID_RANGE.remove(session_id)
-        action[0][6], action[1][6] = session_id, session_id
+        for packets in action:
+            packets[7] = session_id
+
         itertime_packet.append(action)
+
         if np.random.normal(0,1) > 2:
             DN_time = np.random.randint(1,15)
             DN_size = int(np.random.normal(1000,100))
@@ -116,8 +129,9 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
                 download_action = copy.deepcopy(action[1])
                 download_datetime = datetime.strptime(download_action[0], '%Y-%m-%d %H:%M:%S')
                 download_action[0] = (download_datetime + timedelta(seconds = i+1)).strftime('%Y-%m-%d %H:%M:%S')
-                download_action[5] = DN_size
+                download_action[6] = DN_size
                 itertime_packet.append([download_action])
         j += 1
+
     return itertime_packet
 
