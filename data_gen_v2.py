@@ -273,7 +273,7 @@ class Home():
                                 interval_key = fs['interval2']
                                 firmware_packet = itertime_action(from_date, to_date,
                                                                 interval_time, interval_key,
-                                                                firmware_packet, fs['packet'])
+                                                                firmware_packet, fs['packet'], device_name, function_name)
                                 all_packet_list += firmware_packet
                         except:
                             print("error")
@@ -311,8 +311,8 @@ def home_set():
         print("-----------finish {}-----------".format(Home_name))
         print(IP_list)
         print(mac_list)
+        print(device_firmware_update_dict)
     return Home_class_list, Home_packet_dict
-
 
 
 if __name__ == "__main__":
@@ -325,6 +325,22 @@ if __name__ == "__main__":
         df = pd.DataFrame(home_packet_dict[home_name], 
             columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","Protocol","PacketSIZE", "Session_id","vendor"])
         df = df.sort_values(by = 'Time')
+
+ 
+        def update_version(_list):
+            input_Time = _list[0]
+            vendor = _list[1]
+            try:
+                update_time = pd.Series(device_firmware_update_dict[vendor])
+                new = update_time[update_time<input_Time]
+            except:
+                new = []
+            if len(new) >= 1:
+                version = new.index.values.max()
+            else:
+                version = 0
+            return version
+        df['version'] = df[['Time','vendor']].apply(update_version, axis = 1)
         df = df[df.PacketSIZE>0]
         df['PacketSIZE'] = df['PacketSIZE'].apply(math.ceil)
         outname = "{}.log".format(home_name)
@@ -332,4 +348,3 @@ if __name__ == "__main__":
         df.to_csv(fullname,index=False)
         
     
- 

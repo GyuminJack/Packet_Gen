@@ -83,10 +83,11 @@ def time_plus_packet(_start_time, _finish_time, packet_list, max_trials):
     return all_time
 
 # 반복작업(ex. firmware_check)에 대한 패킷 생성.
-def itertime_action(from_time, to_time, interval1, interval2, packet_list, packet_level):
+device_firmware_update_dict = {}
+def itertime_action(from_time, to_time, interval1, interval2, packet_list, packet_level, device_name, fsname):
 
     global SESSION_ID_RANGE
-    
+    global device_firmware_update_dict
     itertime_packet = []
     interval_criterion = {"hour":24*60 ,"min":60, "seconds":1}
     change_sec = interval1 * interval_criterion[interval2]
@@ -98,6 +99,7 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
     j=0
     src = list(np.random.randint(packet_list[0][2][0],packet_list[0][2][1], size =100))
     dst = list(np.random.randint(packet_list[0][4][0],packet_list[0][4][1], size =100))
+
 
     while time < to_time:
         time = time + timedelta(seconds = change_sec*1)
@@ -121,17 +123,24 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
             packets[7] = session_id
 
         itertime_packet.append(action)
-
-        if np.random.normal(0,1) > 2:
-            DN_time = np.random.randint(1,15)
-            DN_size = int(np.random.normal(1000,100))
-            for i in range(DN_time):
-                download_action = copy.deepcopy(action[1])
-                download_datetime = datetime.strptime(download_action[0], '%Y-%m-%d %H:%M:%S')
-                download_action[0] = (download_datetime + timedelta(seconds = i+1)).strftime('%Y-%m-%d %H:%M:%S')
-                download_action[6] = DN_size
-                itertime_packet.append([download_action])
+        if "firmware_check" in fsname:
+            upgrade_list = []
+            if np.random.normal(0,1) > 3:
+                DN_time = np.random.randint(1,15)
+                DN_size = int(np.random.normal(1000,100))
+                upgrade_datetime = action[1][0]
+                # upgrade_list.append(upgrade_datetime)
+                for i in range(DN_time):
+                    download_action = copy.deepcopy(action[1])
+                    download_datetime = datetime.strptime(download_action[0], '%Y-%m-%d %H:%M:%S')
+                    download_action[0] = (download_datetime + timedelta(seconds = i+1)).strftime('%Y-%m-%d %H:%M:%S')
+                    download_action[6] = DN_size
+                    itertime_packet.append([download_action])
+                try:
+                    device_firmware_update_dict[device_name].append(upgrade_datetime)
+                except:
+                    device_firmware_update_dict[device_name] = []
+                    device_firmware_update_dict[device_name].append(upgrade_datetime)
         j += 1
-
     return itertime_packet
 
