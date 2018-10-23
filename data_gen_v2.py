@@ -4,7 +4,7 @@ import pandas as pd
 import re
 import os
 import mac_address_maker
-
+import traceback
 #ip change
 def change_to_ip(_ip):
     class_dict = {"0":"z","8":"A","16":"B","24":"C"}
@@ -128,7 +128,7 @@ class Home():
         print("User pattern Making start")
         user_action_making = []
         for i, user in enumerate(self.user_list):
-            # print(user)
+            print(user)
             weekday_user_pattern = []
             weekend_user_pattern = []
             for _action_list in user.time_action:
@@ -157,6 +157,7 @@ class Home():
                         user_action_making.append([action_time, finish_time, action, trial, max_stream_time])
                     action_time += timedelta(days=1)
         all_user_pattern = user_action_making
+        print(all_user_pattern)
         print("User pattern Making finish")
 
         # Device의 기능별 기본 단위 패킷을 생성
@@ -173,21 +174,29 @@ class Home():
                 Device_port = int(np.random.choice(Device_Portrange))
                 for function_name in self.selected_device_dict[device_name]:
                     if function_name not in ['Device IP','Device Portrange','MAC_Addr']:
-                        if self.selected_device_dict[device_name][function_name]["Task"] == "Common":
-                            standard_packet_list = [] 
-                            try:
-                                for i, each_session in enumerate(self.selected_device_dict[device_name][function_name]['Sessions']['Routine']):
-                                    fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
-                                    srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
-                                    dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
-                                    dst_ip = change_to_ip(fs['Server'])
-                                    new_task = make_function(device_name, Device_Mac, srcport[i], 
-                                                        dst_ip, dstport[i], fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
-                                    standard_packet_list += new_task
-                            except:
-                                print("{} has no routine".format[function_name])
+                        if self.selected_device_dict[device_name][function_name]["Task"] in ["Common","DDOS"]:
+                            if self.selected_device_dict[device_name][function_name]["Task"] == "DDOS":
+                                trial_thred = np.random.normal(0,1)
+                            else:
+                                trial_thred = 3
+                            if trial_thred > 2:
+                                standard_packet_list = [] 
+                                try:
+                                    for i, each_session in enumerate(self.selected_device_dict[device_name][function_name]['Sessions']['Routine']):
+                                        fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
+                                        try:
+                                            srcport = np.random.randint(fs["home_specific_port_connect"][0],fs["home_specific_port_connect"][1],size=10)
+                                        except:
+                                            srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
+                                        dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
+                                        dst_ip = change_to_ip(fs['Server'])
+                                        new_task = make_function(device_name, function_name, Device_Mac, srcport[i], 
+                                                            dst_ip, dstport[i], fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
+                                        standard_packet_list += new_task
+                                except:
+                                    print("{} has no routine".format[function_name])
                             device_packet_dict[function_name] = standard_packet_list
-
+                        
                         elif (self.selected_device_dict[device_name][function_name]["Task"] == "Streaming") and (max_stream_time>0):
                             standard_packet_list = []
                             try:
@@ -195,10 +204,13 @@ class Home():
                                     # 스트리밍 다운로드를 실행하기 전 패킷
                                     if each_session != "Streaming":
                                         fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
-                                        srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
+                                        try:
+                                            srcport = np.random.randint(fs["home_specific_port_connect"][0],fs["home_specific_port_connect"][1],size=10)
+                                        except:
+                                            srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
                                         dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
                                         dst_ip = change_to_ip(fs['Server'])
-                                        new_task = make_function(device_name, Device_Mac, srcport[i], 
+                                        new_task = make_function(device_name, function_name ,Device_Mac, srcport[i], 
                                                             dst_ip, dstport[i], fs['UPDN'],fs['Protocol'], fs['time'], fs['packet'])
                                         standard_packet_list += new_task
                                     # 스트리밍 다운로드를 하는 패킷
@@ -208,8 +220,13 @@ class Home():
                                         #곡 종료 후 대기 상황
                                         fs['time'].append(1)
                                         fs['UPDN'].append("UP")
+                                        fs['Protocol'].append("TCP")
                                         fs['packet'].append(0)
-                                        srcport = list(np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1))[0]
+                                        try:
+                                            srcport = np.random.randint(fs["home_specific_port_connect"][0],fs["home_specific_port_connect"][1],size=1)[0]
+                                        except:    
+                                            srcport = list(np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1))[0]
+                                        
                                         dstport = list(np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1))[0]
                                         song_play_seconds = int(np.random.normal(fs['Song_play_minutes']*60,25))
                                         max_playing_seconds = int(np.random.normal(max_stream_time*60,10))
@@ -229,11 +246,14 @@ class Home():
                                         for song_play_time in song_play_time_list:                                           
                                             if song_play_time > 60:
                                                 fs['time'][2] = song_play_time - (fs['time'][0]+fs['time'][1])
-                                                new_task = make_function(device_name, Device_Mac, srcport,
-                                                                    # Streaming Task의 IP세팅이 C class 라고 판단하는 부분
-                                                                    dst_ip,
-                                                                    dstport, fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
+                                                new_task = make_function(device_name, function_name, Device_Mac, srcport,
+                                                                    dst_ip, dstport, fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
+
                                             stream_packet_list += new_task
+                                        fs['time'].pop()
+                                        fs['UPDN'].pop()
+                                        fs['Protocol'].pop()
+                                        fs['packet'].pop()
                                         standard_packet_list += stream_packet_list
                             except:
                                 pass
@@ -266,7 +286,7 @@ class Home():
                             for each_session in repeat_work["Routine"]:
                                 fs = repeat_work[each_session]
                                 dst_ip = change_to_ip(fs['Server'])
-                                firmware_packet = make_function(device_name, Device_MAC, Device_Portrange, 
+                                firmware_packet = make_function(device_name, function_name, Device_MAC, Device_Portrange, 
                                                                 dst_ip, fs['PortRange'], 
                                                                 fs['UPDN'], fs['Protocol'], fs['time'], fs['packet'])
                                 interval_time = fs['interval1']
@@ -277,6 +297,25 @@ class Home():
                                 all_packet_list += firmware_packet
                         except:
                             print("error")
+                    elif in_home_device_set[device_name][function_name]["Task"] == "Port_scan":
+                        repeat_work = in_home_device_set[device_name][function_name]["Sessions"]
+                        try:
+                            for each_session in repeat_work["Routine"]:
+                                fs = repeat_work[each_session]
+                                dst_ip = change_to_ip(fs['Attack_Server'])
+                                attack_port_range = np.random.randint(fs['Attack_PortRange'][0],fs['Attack_PortRange'][1],size = fs['Attack_number'])
+                                port_packet = make_function(device_name, function_name, Device_MAC, attack_port_range, 
+                                                                dst_ip, fs['PortRange'], 
+                                                                fs['UPDN'], fs['Protocol'], fs['time'], fs['packet'])
+                                attack_trial = fs['max_attack_trial']
+                                Port_scan = itertime_action(from_date, to_date, 
+                                                                attack_trial, "seconds",
+                                                                port_packet, fs['packet'], device_name, "Port_scan")
+                                all_packet_list += Port_scan
+                        except:
+                            traceback.print_exc()
+                            print("error")
+
         print("Repeatedly Task Finish")
         return all_packet_list
     
@@ -323,7 +362,7 @@ if __name__ == "__main__":
     for each_home in home_list:
         home_name = each_home.Home_name
         df = pd.DataFrame(home_packet_dict[home_name], 
-            columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","Protocol","PacketSIZE", "Session_id","vendor"])
+            columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","Protocol","PacketSIZE", "Session_id","vendor","service_name"])
         df = df.sort_values(by = 'Time')
 
  

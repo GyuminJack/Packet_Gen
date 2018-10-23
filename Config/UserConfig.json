@@ -1,4 +1,13 @@
-{
+{   
+    "Anomaly" : {
+        "weekday" : {
+            "botnet" : {
+                "start_time" : 100,
+                "finish_time" : 130,
+                "max_trial" : 1}
+            }
+        
+    },
     "USER1" : { 
         "weekday" : {
             "s_traffic_check" : {
@@ -14,10 +23,6 @@
                 "start_time": 700, 
                 "finish_time" : 730,
                 "max_trial" : 5},
-            "Hc_view_state" : {
-                "start_time": 1400,
-                "finish_time" : 1800,
-                "max_trial" : 4},
             "s_music_stream_1" : {
                 "start_time": 1750, 
                 "finish_time" : 2000,
@@ -42,11 +47,45 @@
             "Hc_view_state_1" : {
                 "start_time": 730, 
                 "finish_time":1010, 
-                "max_trial" : 10},
-            "Hc_view_state_2" : {
-                "start_time": 710, 
-                "finish_time":1010, 
                 "max_trial" : 10}
         }
+    },
+    "USER2" : { 
+        "weekday" : {
+            "s_traffic_check" : {
+                "start_time": 910, 
+                "finish_time":930, 
+                "max_trial" : 2},
+            "s_music_stream" : {
+                "start_time": 900, 
+                "finish_time" : 950,
+                "max_stream_time" : 20,
+                "max_trial" : 1},
+            "s_music_stream_1" : {
+                "start_time": 2050, 
+                "finish_time" : 2140,
+                "max_stream_time" : 30,
+                "max_trial" : 1},
+            "Hc_view_state" : {
+                "start_time": 730, 
+                "finish_time":1010, 
+                "max_trial" : 10},
+            "Hc_view_state_1" : {
+                "start_time": 1400,
+                "finish_time" : 1800,
+                "max_trial" : 4}
+        },
+        "weekend" : {
+            "Sr_searcing" : {
+                "start_time": 1750, 
+                "finish_time" : 2000,
+                "max_trial" : 8},
+            "Hc_view_state_2" : {
+                "start_time": 2010, 
+                "finish_time":2040, 
+                "max_trial" : 10}
+            
+        }
+        
     }
 }   
