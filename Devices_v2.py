@@ -6,12 +6,12 @@ import math
 import copy 
 
 #세션 아이디를 관리하기 위한 전역변수
-SESSION_ID_RANGE = [i for i in range(65001)]
+
 
 
 #패킷의 사이즈를 리턴하는 함수
 def size_packet(level):
-    size_list = [[10,5],[50,5],[250,5],[500,5],[1000,5],[5000,5]]
+    size_list = [[20,5],[40,3],[80,10],[150,15],[300,5],[1000,5],[5000,5]]
     if level == 0:
         size = 0
     else:
@@ -20,10 +20,7 @@ def size_packet(level):
 
 #기본 단위 패킷을 생성
 def make_function(vendor, function_name, srcip, srcport, dstip, dstport, udlist, protocol_list, time_list, packet_list):
-    global SESSION_ID_RANGE
-    session_id = int(np.random.choice(SESSION_ID_RANGE))
-    SESSION_ID_RANGE.remove(session_id)
-
+    session_id = int(np.random.randint(0,100000,size=1))
     total_packet = []
     for i, ud in enumerate(udlist):
         if ud == "UP":
@@ -66,10 +63,9 @@ def time_plus_packet(_start_time, _finish_time, packet_list, max_trials):
     all_time = []
     packets = []
     for i, in_time in enumerate(new_time_list):
-        session_no = int(np.random.choice(SESSION_ID_RANGE))
-        SESSION_ID_RANGE.remove(session_no)
+        session_id = int(np.random.randint(0,100000,size=1))
         for packet in packet_list:
-            packet[-3] = session_no
+            packet[-3] = session_id
             cost_time = packet[0]
             _trial = math.ceil(cost_time)
             for _ in range(_trial):
@@ -86,7 +82,6 @@ def time_plus_packet(_start_time, _finish_time, packet_list, max_trials):
 device_firmware_update_dict = {}
 def itertime_action(from_time, to_time, interval1, interval2, packet_list, packet_level, device_name, fsname):
 
-    global SESSION_ID_RANGE
     global device_firmware_update_dict
     itertime_packet = []
     itertime_packet_1 = []
@@ -116,17 +111,16 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
 
             # action[0][2], action[0][4] = src, dst
             # action[1][2], action[1][4] = dst, src
-            session_id = np.random.choice(SESSION_ID_RANGE)
-            SESSION_ID_RANGE.remove(session_id)
+            session_id = int(np.random.randint(0,100000,size=1))
             for packets in action:
                 packets[7] = session_id
             
             itertime_packet.append(action)
             if "firmware_check" in fsname:
                 upgrade_list = []
-                if np.random.normal(0,1) > 3:
-                    DN_time = np.random.randint(1,15)
-                    DN_size = int(np.random.normal(1000,100))
+                if np.random.normal(0,1) > 4.5:
+                    DN_time = np.random.randint(1,10)
+                    DN_size = int(np.random.normal(1000,5))
                     upgrade_datetime = action[1][0]
                     # upgrade_list.append(upgrade_datetime)
                     for i in range(DN_time):
@@ -142,7 +136,6 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
                         device_firmware_update_dict[device_name].append(upgrade_datetime)
             j += 1
     elif fsname == 'Port_scan':
-        print("port")
         port_list = packet_list[0][2]
         max_attack_trial = interval1
         changetime=[(to_time-from_time).total_seconds()][0]
@@ -152,22 +145,16 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
         for i in range(0,len(random_list)-1):
             if random_list[i+1] - random_list[i] > len(port_list):
                 new_time_list.append(random_list[i])
-        
-        for i in range(max_attack_trial):
-            try:
-                new_time = new_time_list[i]
-                try_thred = np.random.normal(0,1)
-                if abs(try_thred)>1:
-                    A_time = from_time + timedelta(seconds = int(new_time))
-                    for j, _port in enumerate(port_list):
-                        _time = A_time + timedelta(seconds = 1)
-                        new_packet = copy.deepcopy(packet_list)
-                        new_packet[0][2] = _port
-                        ho_port = int(np.random.randint(new_packet[0][4][0],new_packet[0][4][1],size=1))
-                        new_packet[0][4] = ho_port
-                        action = time_plus_packet(_time, _time, new_packet, 1)
-                        itertime_packet.append(action)
-            except:
-                pass
-        
+        for new_time in new_time_list:
+            try_thred = np.random.normal(0,1)
+            if abs(try_thred)>1:
+                A_time = from_time + timedelta(seconds = int(new_time))
+                for j, _port in enumerate(port_list):
+                    _time = A_time + timedelta(seconds = 1)
+                    new_packet = copy.deepcopy(packet_list)
+                    new_packet[0][2] = _port
+                    ho_port = int(np.random.randint(new_packet[0][4][0],new_packet[0][4][1],size=1))
+                    new_packet[0][4] = ho_port
+                    action = time_plus_packet(_time, _time, new_packet, 1)
+                    itertime_packet.append(action)
     return itertime_packet

@@ -118,7 +118,7 @@ class Home():
                     all_user.append(user_config)
             return all_user
         self.user_list = make_user_list()
-
+    
     # 유저정보와 기기정보를 합하여 패킷을 생성
     def packet_generate(self, from_date, to_date):
         self.from_date = from_date
@@ -128,7 +128,6 @@ class Home():
         print("User pattern Making start")
         user_action_making = []
         for i, user in enumerate(self.user_list):
-            print(user)
             weekday_user_pattern = []
             weekend_user_pattern = []
             for _action_list in user.time_action:
@@ -157,7 +156,6 @@ class Home():
                         user_action_making.append([action_time, finish_time, action, trial, max_stream_time])
                     action_time += timedelta(days=1)
         all_user_pattern = user_action_making
-        print(all_user_pattern)
         print("User pattern Making finish")
 
         # Device의 기능별 기본 단위 패킷을 생성
@@ -176,11 +174,11 @@ class Home():
                     if function_name not in ['Device IP','Device Portrange','MAC_Addr']:
                         if self.selected_device_dict[device_name][function_name]["Task"] in ["Common","DDOS"]:
                             if self.selected_device_dict[device_name][function_name]["Task"] == "DDOS":
-                                trial_thred = np.random.normal(0,1)
+                                try_thred = np.random.normal(0,1)
                             else:
-                                trial_thred = 3
-                            if trial_thred > 2:
-                                standard_packet_list = [] 
+                                try_thred = 3
+                            if abs(try_thred) > 1.5:
+                                standard_packet_list = []
                                 try:
                                     for i, each_session in enumerate(self.selected_device_dict[device_name][function_name]['Sessions']['Routine']):
                                         fs = self.selected_device_dict[device_name][function_name]['Sessions'][each_session]
@@ -195,7 +193,7 @@ class Home():
                                         standard_packet_list += new_task
                                 except:
                                     print("{} has no routine".format[function_name])
-                            device_packet_dict[function_name] = standard_packet_list
+                                device_packet_dict[function_name] = standard_packet_list
                         
                         elif (self.selected_device_dict[device_name][function_name]["Task"] == "Streaming") and (max_stream_time>0):
                             standard_packet_list = []
@@ -228,7 +226,7 @@ class Home():
                                             srcport = list(np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1))[0]
                                         
                                         dstport = list(np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1))[0]
-                                        song_play_seconds = int(np.random.normal(fs['Song_play_minutes']*60,25))
+                                        song_play_seconds = int(np.random.normal(fs['standard_trial_time_min']*60,25))
                                         max_playing_seconds = int(np.random.normal(max_stream_time*60,10))
                                         
                                         N_of_playing = int(max_playing_seconds/song_play_seconds)
@@ -258,7 +256,6 @@ class Home():
                             except:
                                 pass
                             device_packet_dict[function_name] = standard_packet_list
-                            # pprint(device_packet_dict['s_music_stream'])
             return device_packet_dict            
 
         for s_time, f_time, work, max_trials, max_stream_time in all_user_pattern:
@@ -296,10 +293,12 @@ class Home():
                                                                 firmware_packet, fs['packet'], device_name, function_name)
                                 all_packet_list += firmware_packet
                         except:
+                            traceback.print_exc()
                             print("error")
                     elif in_home_device_set[device_name][function_name]["Task"] == "Port_scan":
                         repeat_work = in_home_device_set[device_name][function_name]["Sessions"]
                         try:
+
                             for each_session in repeat_work["Routine"]:
                                 fs = repeat_work[each_session]
                                 dst_ip = change_to_ip(fs['Attack_Server'])
@@ -322,6 +321,7 @@ class Home():
 def home_set():
     Home_class_list = []
     Home_packet_dict = {}
+    Home_date_list = []
     try:
         with open('./Config/HomeConfig.json','r') as f:
             home_config = json.load(f)
@@ -340,6 +340,7 @@ def home_set():
                 from_date = datetime(a,b,c,d,e,f)
             elif _date == 'to_date':
                 to_date = datetime(a,b,c,d,e,f)
+        Home_date_list.append([from_date, to_date])
         Device_list = home_config[k1]['Devices']
         User_list = home_config[k1]['User_setting']
         make_home = Home(Home_name,IP,PortRange)
@@ -351,21 +352,22 @@ def home_set():
         print(IP_list)
         print(mac_list)
         print(device_firmware_update_dict)
-    return Home_class_list, Home_packet_dict
+    return Home_class_list, Home_packet_dict, Home_date_list
 
 
 if __name__ == "__main__":
     outdir = './PacketGen'
     if not os.path.exists(outdir):
         os.mkdir(outdir)
-    home_list, home_packet_dict = home_set()
-    for each_home in home_list:
+    home_list, home_packet_dict, Home_date_list = home_set()
+    for i, each_home in enumerate(home_list):
         home_name = each_home.Home_name
         df = pd.DataFrame(home_packet_dict[home_name], 
             columns = ['Time','SrcIP',"SrcPort","DstIP","DstPort","Protocol","PacketSIZE", "Session_id","vendor","service_name"])
         df = df.sort_values(by = 'Time')
-
- 
+        from_date = Home_date_list[i][0]
+        to_date = Home_date_list[i][1]
+        df = df[pd.to_datetime(df['Time'])<=to_date]
         def update_version(_list):
             input_Time = _list[0]
             vendor = _list[1]

@@ -11,8 +11,8 @@
                     "UPDN" : ["UP"],
                     "Protocol" :["TCP"],
                     "time" : [1],
-                    "packet" : [1],
-                    "max_attack_trial" : 20
+                    "packet" : [2],
+                    "max_attack_trial" : 10
                 },
                 "Routine" : ["Session1"]
             }
@@ -20,6 +20,34 @@
         
     },
     "SK_NUGU" : {
+        "s_botnet" : {
+            "Task" : "DDOS",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "13.123.0.0/24",
+                    "PortRange" : [0,65535],
+                    "UPDN" : ["UP","UP","UP"],
+                    "Protocol" :["TCP","TCP","TCP"],
+                    "time" : [1,50,50],
+                    "packet" : [1,5,5]
+                },
+                "Routine" : ["Session1"]
+            }
+        },        
+        "s_weather_check" : {
+            "Task" : "Common",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "13.123.0.0/24",
+                    "PortRange" : [300,301],
+                    "UPDN" : ["UP","DN","UP","DN"],
+                    "Protocol" :["TCP","TCP","TCP","TCP"],
+                    "time" : [1,1,1,2],
+                    "packet" : [2,2,2,4]
+                },
+                "Routine" : ["Session1"]
+            }
+        },
         "s_traffic_check" : {
             "Task" : "Common",
             "Sessions" : {
@@ -28,8 +56,8 @@
                     "PortRange" : [300,301],
                     "UPDN" : ["UP","DN","UP","DN"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
-                    "time" : [1,1,1,5],
-                    "packet" : [1,1,2,3]
+                    "time" : [1,1,1,2],
+                    "packet" : [2,2,2,4]
                 },
                 "Routine" : ["Session1"]
             }
@@ -42,8 +70,8 @@
                     "PortRange" : [800,810],
                     "UPDN" : ["UP","DN","UP","DN"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
-                    "time" : [1,1,1,4],
-                    "packet" : [1,1,5,3]
+                    "time" : [1,1,1,3],
+                    "packet" : [2,2,2,3]
                 },
                 "Routine" : ["Session1"]
             }
@@ -57,9 +85,9 @@
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
                     "time" : [1,1],
-                    "packet" : [1,1],
-                    "interval1" : 15,
-                    "interval2" : "min"
+                    "packet" : [2,2],
+                    "interval1" : 5,
+                    "interval2" : "seconds"
                 },
                 "Routine" : ["Session1"]
             }
@@ -73,48 +101,57 @@
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
                     "time" : [1,1],
-                    "packet" : [1,1]
+                    "packet" : [2,2]
                 },
                 "Streaming" : {
                     "Server" : "13.123.0.0/24",
                     "PortRange" : [5060,5601],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
-                    "time" : [1,20],
-                    "packet" : [2,5],
-                    "Song_play_minutes" : 3
+                    "time" : [1,10],
+                    "packet" : [2,6],
+                    "standard_trial_time_min" : 3
+                },
+                "Routine" : ["Session1","Streaming"]
+            }
+        },
+        "s_radio_stream" : {
+            "Task" : "Streaming",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "13.123.0.0/24",
+                    "PortRange" : [5000,5010],
+                    "UPDN" : ["UP","DN"],
+                    "Protocol" :["TCP","TCP"],
+                    "time" : [1,1],
+                    "packet" : [2,2]
+                },
+                "Streaming" : {
+                    "Server" : "13.123.0.0/24",
+                    "PortRange" : [5060,5601],
+                    "UPDN" : ["UP","DN","DN"],
+                    "Protocol" :["TCP","TCP","TCP"],
+                    "time" : [1,30,29],
+                    "packet" : [2,6,6],
+                    "standard_trial_time_min" : 1
                 },
                 "Routine" : ["Session1","Streaming"]
             }
         }
     },
     "Home_camera" : {
-        "botnet" : {
-            "Task" : "DDOS",
-            "Sessions" : {
-                "Session1" : {
-                    "Server" : "13.156.223.0/24",
-                    "PortRange" : [5000,5050],
-                    "UPDN" : ["UP","UP","UP"],
-                    "Protocol" :["TCP","TCP","TCP"],
-                    "time" : [1,10,10],
-                    "packet" : [1,5,5]
-                },
-                "Routine" : ["Session1"]
-            }
-        },        
         "Hc_Normal" : {
             "Task" : "Repeatedly",
             "Sessions" : {
                 "Session1" : {
-                    "Server" : "14.212.15.18",
+                    "Server" : "52.119.185.54",
                     "PortRange" : [5000,5050],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
                     "time" : [1,1],
-                    "packet" : [1,1],
-                    "interval1" : 15,
-                    "interval2" : "min"
+                    "packet" : [2,2],
+                    "interval1" : 5,
+                    "interval2" : "seconds"
                 },
                 "Routine" : ["Session1"]
             }
@@ -123,25 +160,34 @@
             "Task" : "Streaming",
             "Sessions" : {
                 "Session1" : {
-                    "Server" : "14.212.15.0/24",
+                    "Server" : "192.168.200.18",
                     "PortRange" : [1,65535],
                     "home_specific_port_connect" : [9010,9011],
                     "UPDN" : ["DN","UP","DN","UP"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
-                    "time" : [1,1,2,1],
-                    "packet" : [1,1,2,2]
+                    "time" : [1,1,1,1],
+                    "packet" : [2,2,2,2]
                 },
                 "Streaming" : {
-                    "Server" : "14.212.18.0/24",
+                    "Server" : "192.168.200.18",
                     "PortRange" : [1,65535],
                     "home_specific_port_connect" : [9020,9021],
-                    "UPDN" : ["UP"],
-                    "Protocol" :["TCP"],
-                    "time" : [10],
-                    "packet" : [5],
-                    "Song_play_minutes" : 1
+                    "UPDN" : ["UP","UP"],
+                    "Protocol" :["TCP","TCP"],
+                    "time" : [60],
+                    "packet" : [6],
+                    "standard_trial_time_min" : 1
                 },
-                "Routine" : ["Session1","Streaming"]
+                "Session2" : {
+                    "Server" : "192.168.200.18",
+                    "PortRange" : [1,65535],
+                    "home_specific_port_connect" : [9010,9011],
+                    "UPDN" : ["DN","UP"],
+                    "Protocol" :["TCP","TCP"],
+                    "time" : [1,1],
+                    "packet" : [2,2]
+                },
+                "Routine" : ["Session1","Streaming","Session2"]
             }
         }
     },
@@ -155,8 +201,8 @@
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
                     "time" : [1,1],
-                    "packet" : [1,1],
-                    "interval1" : 15,
+                    "packet" : [2,2],
+                    "interval1" : 2,
                     "interval2" : "min"
                 },
                 "Routine" : ["Session1"]
@@ -171,23 +217,9 @@
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
                     "time" : [1,1],
-                    "packet" : [3,1],
-                    "interval1" : 15,
+                    "packet" : [2,2],
+                    "interval1" : 1,
                     "interval2" : "min" 
-                },
-                "Routine" : ["Session1"]
-            }
-        },
-        "Sa_view_state" : {
-            "Task" : "Common",
-            "Sessions" : {
-                "Session1" : {
-                    "Server" : "16.234.223.0/24",
-                    "PortRange" : [2002,2003],
-                    "UPDN" : ["DN","UP","DN","UP"],
-                    "Protocol" :["TCP","TCP","TCP","TCP"],
-                    "time" : [1,1,2,10],
-                    "packet" : [1,2,2,5]
                 },
                 "Routine" : ["Session1"]
             }
@@ -203,25 +235,9 @@
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
                     "time" : [1,1],
-                    "packet" : [1,1],
-                    "interval1" : 15,
+                    "packet" : [2,2],
+                    "interval1" : 1,
                     "interval2" : "min"
-                },
-                "Routine" : ["Session1"]
-            }
-        },
-        "Sr_upload" : {
-            "Task" : "Repeatedly",
-            "Sessions" : {
-                "Session1" : {
-                    "Server" : "17.234.223.231",
-                    "PortRange" : [1000,1001],
-                    "UPDN" : ["UP","DN"],
-                    "Protocol" :["TCP","TCP"],
-                    "time" : [1,1],
-                    "packet" : [1,1],
-                    "interval1" : 15,
-                    "interval2" : "min" 
                 },
                 "Routine" : ["Session1"]
             }
@@ -236,17 +252,17 @@
                     "UPDN" : ["DN","UP","DN","UP"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
                     "time" : [1,1,2,1],
-                    "packet" : [1,1,2,2]
+                    "packet" : [2,2,2,2]
                 },
                 "Streaming" : {
                     "Server" : "17.234.0.0/16",
                     "home_specific_port_connect" : [7020,7021],
                     "PortRange" : [0,65535],
-                    "UPDN" : ["UP"],
-                    "Protocol" :["TCP"],
-                    "time" : [10],
-                    "packet" : [5],
-                    "Song_play_minutes" : 3
+                    "UPDN" : ["UP","UP","UP","UP","UP","UP"],
+                    "Protocol" :["TCP","TCP","TCP","TCP","TCP","TCP"],
+                    "time" : [3,3,3,3,3,3],
+                    "packet" : [5,5,5,5,5,5],
+                    "standard_trial_time_min" : 1
                 },
                 "Routine" : ["Session1","Streaming"]
             }
@@ -260,15 +276,15 @@
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
                     "time" : [1,1],
-                    "packet" : [1,3]
+                    "packet" : [2,2]
                 },
                 "Session2" : {
-                    "Server" : "132.214.243.0.24",
+                    "Server" : "132.214.243.0/24",
                     "PortRange" : [2003,2004],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
-                    "time" : [2,10],
-                    "packet" : [2,5]
+                    "time" : [1,5],
+                    "packet" : [2,4]
                 },
                 "Routine" : ["Session1", "Session2", "Session2"]
             }
