@@ -33,8 +33,8 @@
                 "finish_time" : 2200,
                 "max_trial" : 5},
             "s_music_stream_1" : {
-                "start_time": 1750, 
-                "finish_time" : 2000,
+                "start_time": 2000, 
+                "finish_time" : 2200,
                 "max_stream_time" : 80,
                 "max_trial" : 1}
         },
@@ -72,7 +72,26 @@
                 "start_time": 900, 
                 "finish_time" : 1000,
                 "max_trial" : 3}
+        }   
+    },
+    "USER3" : { 
+        "weekday" : {
+            "s_music_stream" : {
+                "start_time": 1550, 
+                "finish_time" : 1800,
+                "max_stream_time" : 60,
+                "max_trial" : 2}
+        },
+        "weekend" : {
+            "s_weather_check" : {
+                "start_time": 1000, 
+                "finish_time": 1130, 
+                "max_trial" : 1},
+            "s_music_stream" : {
+                "start_time": 1900, 
+                "finish_time" : 2200,
+                "max_stream_time" : 60,
+                "max_trial" : 2}
         }
-        
     }
 }   

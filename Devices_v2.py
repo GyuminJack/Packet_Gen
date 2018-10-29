@@ -84,7 +84,6 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
 
     global device_firmware_update_dict
     itertime_packet = []
-    itertime_packet_1 = []
     interval_criterion = {"hour":24*60 ,"min":60, "seconds":1}
     change_sec = interval1 * interval_criterion[interval2]
     time_gap = to_time-from_time
