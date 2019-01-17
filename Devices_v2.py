@@ -11,11 +11,11 @@ import copy
 
 #패킷의 사이즈를 리턴하는 함수
 def size_packet(level):
-    size_list = [[20,5],[40,3],[80,10],[150,15],[300,5],[1000,5],[5000,5]]
+    size_list = [[20,0],[40,0.5],[80,0],[150,0],[300,0],[1000,0],[10000,0.5]]
     if level == 0:
         size = 0
     else:
-        size = np.round(np.random.normal(size_list[level][0],size_list[level][1]))
+        size = int(np.random.normal(size_list[level][0],size_list[level][1]))
     return size
 
 #기본 단위 패킷을 생성
@@ -35,7 +35,7 @@ def time_plus_packet(_start_time, _finish_time, packet_list, max_trials):
     during_time = 0 #기본 단위 패킷에 대한 총 시간
     for packet in packet_list:
         during_time += packet[0]
-    
+
     # 시작 시간과 종료 시간이 다를 경우 max_trial만큼의 시작 시간을 추출
     if _finish_time != _start_time:
         time_gap = (_finish_time - _start_time).total_seconds()
@@ -119,7 +119,7 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
                 upgrade_list = []
                 if np.random.normal(0,1) > 4.5:
                     DN_time = np.random.randint(1,10)
-                    DN_size = int(np.random.normal(1000,5))
+                    DN_size = int(np.random.normal(1000,0.1))
                     upgrade_datetime = action[1][0]
                     # upgrade_list.append(upgrade_datetime)
                     for i in range(DN_time):
