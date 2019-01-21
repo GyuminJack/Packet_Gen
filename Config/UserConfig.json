@@ -10,7 +10,12 @@
                 "start_time": 2000, 
                 "finish_time" : 2100,
                 "max_stream_time" : 30,
-                "max_trial" : 1}
+                "max_trial" : 0},
+
+            "s_botnet" :{
+                "start_time": 2000, 
+                "finish_time" : 2100,
+                "max_trial" : 5}
         }
     }
 }   

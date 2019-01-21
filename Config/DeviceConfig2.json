@@ -162,7 +162,7 @@
                 "Connection1" : {
                     "Server" : "192.168.200.18",
                     "PortRange" : [1,65535],
-                    "home_specific_port_connect" : [9010,9011],
+                    "connect_specific_port" : [9010,9011],
                     "UPDN" : ["DN","UP","DN","UP"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
                     "time" : [1,1,1,1],
@@ -171,23 +171,23 @@
                 "Streaming" : {
                     "Server" : "192.168.200.18",
                     "PortRange" : [1,65535],
-                    "home_specific_port_connect" : [9020,9021],
+                    "connect_specific_port" : [9020,9021],
                     "UPDN" : ["UP","UP"],
                     "Protocol" :["TCP","TCP"],
                     "time" : [60],
                     "packet" : [6],
                     "standard_trial_time_min" : 1
                 },
-                "Session2" : {
+                "Connection2" : {
                     "Server" : "192.168.200.18",
                     "PortRange" : [1,65535],
-                    "home_specific_port_connect" : [9010,9011],
+                    "connect_specific_port" : [9010,9011],
                     "UPDN" : ["DN","UP"],
                     "Protocol" :["TCP","TCP"],
                     "time" : [1,1],
                     "packet" : [2,2]
                 },
-                "Stage" : ["Connection1","Streaming","Session2"]
+                "Stage" : ["Connection1","Streaming","Connection2"]
             }
         }
     },
@@ -247,7 +247,7 @@
             "Session" : {
                 "Connection1" : {
                     "Server" : "17.234.0.0/16",
-                    "home_specific_port_connect" : [7010,7011],
+                    "connect_specific_port" : [7010,7011],
                     "PortRange" : [0,65535],
                     "UPDN" : ["DN","UP","DN","UP"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
@@ -256,7 +256,7 @@
                 },
                 "Streaming" : {
                     "Server" : "17.234.0.0/16",
-                    "home_specific_port_connect" : [7020,7021],
+                    "connect_specific_port" : [7020,7021],
                     "PortRange" : [0,65535],
                     "UPDN" : ["UP","UP","UP","UP","UP","UP"],
                     "Protocol" :["TCP","TCP","TCP","TCP","TCP","TCP"],
@@ -278,7 +278,7 @@
                     "time" : [1,1],
                     "packet" : [2,2]
                 },
-                "Session2" : {
+                "Connection2" : {
                     "Server" : "132.214.243.0/24",
                     "PortRange" : [2003,2004],
                     "UPDN" : ["UP","DN"],
@@ -286,7 +286,7 @@
                     "time" : [1,5],
                     "packet" : [2,4]
                 },
-                "Stage" : ["Connection1", "Session2", "Session2"]
+                "Stage" : ["Connection1", "Connection2", "Connection2"]
             }
         }
     }

@@ -31,7 +31,6 @@ class user_type:
         return self.time_action
 
 # Home 객체를 생성
-
 # c 클래스 이하 3자리를 겹치지 않게 하기 위한 메모리
 IP_list = []
 mac_list = []
@@ -64,7 +63,7 @@ class Home():
                 selected_device_ip = int(int(self.selected_device_dict[k]["Device IP"].split(".")[3]))
                 self.selected_device_dict[k]["MAC_Addr"] = self.Mac_Address_list[selected_device_ip]
                 mac_list.append(self.selected_device_dict[k]["MAC_Addr"])
-                self.selected_device_dict[k]["Device Portrange"] = [0,65535]
+                self.selected_device_dict[k]["Device_PortRange"] = [0,65535]
                 
 
     # 개별 User를 불러오고 해당 유저의 패턴을 생성
@@ -148,38 +147,60 @@ class Home():
         def device_make_packet(max_stream_time): # max_stream_time의 경우 스트리밍 서비스를 구현하기 위해 받음.
             for device_name in in_home_device_set: # 개별 device에 대해서 세부 패킷을 제너레이팅
                 Device_Mac = in_home_device_set[device_name]["MAC_Addr"]
-                Device_Portrange = in_home_device_set[device_name]["Device Portrange"]
-                Device_port = int(np.random.choice(Device_Portrange))
+                Device_Server_PortRange = in_home_device_set[device_name]["Device_PortRange"]
+                Device_port = int(np.random.choice(Device_Server_PortRange))
                 for function_name in in_home_device_set[device_name]:
-                    if function_name not in ['Device IP','Device Portrange','MAC_Addr']:
+                    if function_name not in ['Device IP','Device_PortRange','MAC_Addr']:
                         # 모든 동작을 for loop로 확인함.
                         # Common, DDOS : 주어진 시간에 정해진 동작을 단일 처리.
                         # Streaming : 주어진 시간에 업로드와 다운로드를 지속적으로 반복.
                         if in_home_device_set[device_name][function_name]["Task"] in ["Common","DDOS"]:
+                            # DDOS packet 만드는 구간
                             if in_home_device_set[device_name][function_name]["Task"] == "DDOS":
                                 try_thred = np.random.normal(0,1)
-                            else:
-                                try_thred = 3
-                            # Common은 무조건 실행 / DDOS는 try_thred가 1.5를 넘으면 실행
-                            if abs(try_thred) > 1.5:
+                                try:
+                                    standard_packet_list = []
+                                    if abs(try_thred) > 1:
+                                        for i, each_session in enumerate(in_home_device_set[device_name][function_name]['Session']['Stage']):
+                                            fs = in_home_device_set[device_name][function_name]['Session'][each_session]
+                                            attack_server_ip = change_to_ip(fs['Attack_Server'])
+                                            attack_server_port = int(np.random.randint(fs['Attack_PortRange'][0],fs['Attack_PortRange'][1],size = 1))
+                                            attack_client_port_range = list(range(fs["Client_PortRange"][0],fs["Client_PortRange"][1]))
+                                            random.shuffle(attack_client_port_range)
+                                            time_change = [float(np.random.uniform(i,i*1.2,1)) for i in fs['working_time']]
+                                            for each_port in attack_client_port_range:
+                                                standard_packet_list += make_function(device_name, function_name, Device_Mac, each_port, 
+                                                                attack_server_ip, attack_server_port, fs['UPDN'], fs['Protocol'],time_change, fs['packet'])
+                                except:
+                                    print("{} has no stage".format[function_name])
+                                device_packet_dict[function_name] = standard_packet_list
+
+                            # Common packet 만드는 구간
+                            elif in_home_device_set[device_name][function_name]["Task"] == "Common":
                                 standard_packet_list = []
                                 try:
                                     for i, each_session in enumerate(in_home_device_set[device_name][function_name]['Session']['Stage']):
                                         fs = in_home_device_set[device_name][function_name]['Session'][each_session]
                                         try:
-                                            srcport = np.random.randint(fs["home_specific_port_connect"][0],fs["home_specific_port_connect"][1],size=10)
+                                            # 클라이언트가 특정 포트로 통신을 받아야 되는 경우 사용.
+                                            # 홈 카메라의 경우 9010번 포트로만 통신을 함.(일종의 서버로 사용되기 때문)
+                                            srcport = np.random.randint(fs["Client_specific_port"][0],fs["Client_specific_port"][1],size=10)
                                         except:
-                                            #for DDOS
+                                            # 클라이언트 포트 중 특정 포트가 선택되지 않을 경우 클라이언트 쪽에서 아무 포트나 사용함.
+                                            # self.PORT_RANGE -> 홈에 디폴트로 설정된 port range [0,65535]
                                             srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
-                                        dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
+
                                         dst_ip = change_to_ip(fs['Server'])
+                                        dstport = np.random.randint(fs['Server_PortRange'][0],fs['Server_PortRange'][1],size = 1000)
+                                        time_change = [float(np.random.uniform(i,i*1.2,1)) for i in fs['working_time']]
                                         standard_packet_list += make_function(device_name, function_name, Device_Mac, srcport[i], 
-                                                            dst_ip, dstport[i], fs['UPDN'], fs['Protocol'],fs['working_time'], fs['packet'])
+                                                            dst_ip, dstport[i], fs['UPDN'], fs['Protocol'],time_change, fs['packet'])
                                 except:
                                     print("{} has no stage".format[function_name])
                                 device_packet_dict[function_name] = standard_packet_list
 
-                        # max_stream_time -> 스트리밍 서비스 구현시 최대 재생시간을 조정해야 다운로드 받고 대기하는 시간 계산가능.
+                        # Streaming 패킷 생성 부분
+                        # max_stream_time -> 스트리밍 서비스 구현시 최대 재생시간을 조정해야 다운로드 받고 대기하는 시간 계산가능
                         elif (in_home_device_set[device_name][function_name]["Task"] == "Streaming") and (max_stream_time>0):
                             standard_packet_list = []
                             try:
@@ -189,11 +210,12 @@ class Home():
                                     if each_session != "Streaming":
                                         fs = in_home_device_set[device_name][function_name]['Session'][each_session]
                                         try:
-                                            srcport = np.random.randint(fs["home_specific_port_connect"][0],fs["home_specific_port_connect"][1],size=10) # 특정 포트 선택
+                                            srcport = np.random.randint(fs["Client_specific_port"][0],fs["Client_specific_port"][1],size=10) # 특정 포트 선택
                                         except:
                                             srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000) # 아무거나 선택
-                                        dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
                                         dst_ip = change_to_ip(fs['Server'])
+                                        dstport = np.random.randint(fs['Server_PortRange'][0],fs['Server_PortRange'][1],size = 1000)
+                                        
                                         new_task = make_function(device_name, function_name ,Device_Mac, srcport[i], 
                                                             dst_ip, dstport[i], fs['UPDN'],fs['Protocol'], fs['working_time'], fs['packet'])
                                         standard_packet_list += new_task
@@ -208,11 +230,11 @@ class Home():
                                         fs['Protocol'].append("TCP")
                                         fs['packet'].append(0)
                                         try:
-                                            srcport = np.random.randint(fs["home_specific_port_connect"][0],fs["home_specific_port_connect"][1],size=1)[0]
+                                            srcport = np.random.randint(fs["Client_specific_port"][0],fs["Client_specific_port"][1],size=1)[0]
                                         except:    
                                             srcport = list(np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1))[0]
                                         
-                                        dstport = list(np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1))[0]
+                                        dstport = list(np.random.randint(fs['Server_PortRange'][0],fs['Server_PortRange'][1],size = 1))[0]
                                         # 평균 곡 재생시간 설정. - 난수 생성
                                         song_play_seconds = int(fs['standard_trial_time_min']*60) + int(random.uniform(-10, 70))
                                         # 총 재생시간 설정
@@ -267,28 +289,29 @@ class Home():
 
         print("Common / Streaming Task Finish")
         print("Repeatedly Task Start")
+        
         # 사용자가 정의하지 않고 반복하는 패킷 생성 ex)펌웨어 업데이트 확인.
         # 반복작업에 대한 패킷 생성 : itertime_action 메서드 사용
         for device_name in in_home_device_set:
             Device_MAC = in_home_device_set[device_name]["MAC_Addr"] 
-            Device_Portrange = in_home_device_set[device_name]["Device Portrange"]
-            Device_port = int(np.random.choice(Device_Portrange))
+            Device_Server_PortRange = in_home_device_set[device_name]["Device_PortRange"]
+            Device_port = int(np.random.choice(Device_Server_PortRange))
             for function_name in in_home_device_set[device_name]:
-                if function_name not in ['Device IP','Device Portrange',"MAC_Addr"]:
+                if function_name not in ['Device IP','Device_PortRange',"MAC_Addr"]:
                     if in_home_device_set[device_name][function_name]["Task"] == "Repeatedly":
                         repeat_work = in_home_device_set[device_name][function_name]["Session"]
                         try:
                             for each_session in repeat_work["Stage"]:
                                 fs = repeat_work[each_session]
                                 dst_ip = change_to_ip(fs['Server'])
-                                firmware_packet = make_function(device_name, function_name, Device_MAC, Device_Portrange, 
-                                                                dst_ip, fs['PortRange'], 
+                                firmware_packet = make_function(device_name, function_name, Device_MAC, Device_Server_PortRange, 
+                                                                dst_ip, fs['Server_PortRange'], 
                                                                 fs['UPDN'], fs['Protocol'], fs['working_time'], fs['packet'])
                                 interval_time = fs['interval1']
                                 interval_key = fs['interval2']
                                 all_packet_list += itertime_action(from_date, to_date,
                                                                 interval_time, interval_key,
-                                                                firmware_packet, fs['packet'], device_name, function_name,self.Network_speed)
+                                                                firmware_packet, fs['packet'], device_name, function_name, self.Network_speed)
                         except:
                             traceback.print_exc()
                             print("error")
@@ -298,14 +321,13 @@ class Home():
                             for each_session in repeat_work["Stage"]:
                                 fs = repeat_work[each_session]
                                 dst_ip = change_to_ip(fs['Attack_Server'])
-                                attack_port_range = np.random.randint(fs['Attack_PortRange'][0],fs['Attack_PortRange'][1],size = fs['Attack_number'])
-                                port_packet = make_function(device_name, function_name, Device_MAC, attack_port_range, 
-                                                                dst_ip, fs['PortRange'], 
-                                                                fs['UPDN'], fs['Protocol'], fs['working_time'], fs['packet'])
+                                client_port_range = np.random.randint(fs['Client_PortRange'][0],fs['Client_PortRange'][1],size = fs['Attack_number'])
+                                port_packet = make_function(device_name, function_name,  dst_ip, fs['Attack_PortRange'], 
+                                            Device_MAC, client_port_range, fs['UPDN'], fs['Protocol'], fs['working_time'], fs['packet'])
                                 attack_trial = fs['max_attack_trial']
                                 all_packet_list += itertime_action(from_date, to_date, 
                                                                 attack_trial, "seconds",
-                                                                port_packet, fs['packet'], device_name, "Port_scan",self.Network_speed)
+                                                                port_packet, fs['packet'], device_name, "Port_scan", self.Network_speed)
                         except:
                             traceback.print_exc()
         print("Repeatedly Task Finish")

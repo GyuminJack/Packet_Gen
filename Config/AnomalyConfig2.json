@@ -1,6 +1,6 @@
 { 
     "Anomaly" : { 
-        "Port_scanning" : {
+        "Port_scan" : {
             "Task" : "Out-In",
             "Session" : {
                 "Connection1" : {

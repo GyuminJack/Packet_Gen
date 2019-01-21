@@ -92,10 +92,9 @@ def time_plus_packet(_start_time, _finish_time, packet_list, max_trials, network
     
     return all_time
 
-# 반복작업(ex. firmware_check)에 대한 패킷 생성.
+# 반복작업(firmware_check / upload_data / port scan)에 대한 패킷 생성.
 device_firmware_update_dict = {}
 def itertime_action(from_time, to_time, interval1, interval2, packet_list, packet_level, device_name, fsname, Network_speed):
-
     global device_firmware_update_dict
     itertime_packet = []
     interval_criterion = {"hour":24*60 ,"min":60, "seconds":1}
@@ -103,9 +102,7 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
     time_gap = to_time-from_time
     execute_times = (time_gap / change_sec).seconds
     # 작업마다 세션아이디와 포트를 재설정하기 위해.
-    if fsname != "Port_scan":
-        ########################### 시작
-        
+    if fsname != "Port_scan": 
         # firmware check를 위한 코드들 / 펌웨어 업데이트를 특정 시간에 진행하는 코드를 확인할 필요가 있음.
         j=0
         src = list(np.random.randint(packet_list[0][2][0],packet_list[0][2][1], size =100))
@@ -154,7 +151,7 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
         port_list = packet_list[0][2]
         max_attack_trial = interval1
         changetime=[(to_time-from_time).total_seconds()][0]
-        random_list = list(np.random.randint(0,int(changetime),size = max_attack_trial))
+        random_list = list(np.random.randint(0,int(changetime), size = max_attack_trial))
         random_list.sort()
         new_time_list = []
         for i in range(0,len(random_list)-1):

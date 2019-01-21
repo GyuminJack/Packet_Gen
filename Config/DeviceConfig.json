@@ -1,11 +1,46 @@
 { 
-    "SK_NUGU" : {      
+    "AP":{
+        "ap_port_scanning" : {
+            "Task" : "Port_scan",
+            "Session" : {
+                "Connection1" : {
+                    "Attack_Server" : "142.212.231.0/24",
+                    "Attack_PortRange" : [53,54],
+                    "Client_PortRange" : [1000,10000],
+                    "Attack_number" : 100,
+                    "UPDN" : ["UP"],
+                    "Protocol" :["TCP"],
+                    "working_time" : [1],
+                    "packet" : [2],
+                    "max_attack_trial" : 100
+                },
+                "Stage" : ["Connection1"]
+            }
+        }
+    },
+    "SK_NUGU" : {
+        "s_botnet" : {
+            "Task" : "DDOS",
+            "Session" : {
+                "Connection1" : {
+                    "Attack_Server" : "13.123.0.0/24",
+                    "Attack_PortRange" : [80,81],
+                    "Client_PortRange" : [600,6000],
+                    "UPDN" : ["UP"],
+                    "Protocol" :["TCP"],
+                    "working_time" : [0.1],
+                    "packet" : [1]
+                },
+                "Stage" : ["Connection1"]
+            }
+        },     
         "s_weather_check" : {
             "Task" : "Common",
             "Session" : {
                 "Connection1" : {
                     "Server" : "52.95.252.0/24",
-                    "PortRange" : [300,301],
+                    "Server_PortRange" : [300,301],
+                    "Client_specific_port" : [9020,9021],
                     "UPDN" : ["UP","DN","UP","DN"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
                     "working_time" : [0.15,0.1,0.1,1],
@@ -19,7 +54,7 @@
             "Session" : {
                 "Connection1" : {
                     "Server" : "52.95.252.0/24",
-                    "PortRange" : [1890,1900],
+                    "Server_PortRange" : [1890,1900],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
                     "working_time" : [0.1,0.1],
@@ -35,7 +70,7 @@
             "Session" : {
                 "Connection1" : {
                     "Server" : "13.125.0.0/16",
-                    "PortRange" : [5000,5010],
+                    "Server_PortRange" : [5000,5010],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
                     "working_time" : [0.1,1],
@@ -43,7 +78,7 @@
                 },
                 "Streaming" : {
                     "Server" : "52.219.60.0/24",
-                    "PortRange" : [5060,5601],
+                    "Server_PortRange" : [5060,5601],
                     "UPDN" : ["UP","DN"],
                     "Protocol" :["TCP","TCP"],
                     "working_time" : [1,3],

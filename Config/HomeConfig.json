@@ -3,7 +3,7 @@
         "IP" : "192.168.0.0/24",
         "from_date" : "2018,1,1,0,0,0",
         "to_date" : "2018,1,15,0,0,0",
-        "Devices" : ["SK_NUGU"],
+        "Devices" : ["SK_NUGU","AP"],
         "User_setting" : ["USER1"],
         "Network_speed_per_sec" : 1000000
     }
