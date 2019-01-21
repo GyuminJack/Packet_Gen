@@ -7,12 +7,12 @@
                     "Attack_Server" : "142.212.231.0/24",
                     "Attack_PortRange" : [53,54],
                     "Client_PortRange" : [1000,10000],
-                    "Attack_number" : 100,
+                    "Attack_number" : 5,
                     "UPDN" : ["UP"],
                     "Protocol" :["TCP"],
-                    "working_time" : [1],
+                    "working_time" : [0.01],
                     "packet" : [2],
-                    "max_attack_trial" : 100
+                    "max_attack_trial" : 5
                 },
                 "Stage" : ["Connection1"]
             }

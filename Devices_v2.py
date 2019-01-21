@@ -45,7 +45,7 @@ def time_plus_packet(_start_time, _finish_time, packet_list, max_trials, network
     else:
         # 반복작업의 경우 시작시간과 종료시간 같음.
         # 해당 경우에는 0~59초 사이에 하나의 숫자만 선택
-        selected_time = list(np.random.uniform(0,60,max_trials))
+        selected_time = list(np.random.uniform(0,1,max_trials))
 
     # 처음 추출된 시작시간에 대해 총시간을 체크해 한번 더 걸러냄.
     second_select = []
@@ -148,25 +148,29 @@ def itertime_action(from_time, to_time, interval1, interval2, packet_list, packe
                         device_firmware_update_dict[device_name].append(upgrade_datetime)
             j += 1
     elif fsname == 'Port_scan':
-        port_list = packet_list[0][2]
+        client_port_range = packet_list[0][4]
         max_attack_trial = interval1
         changetime=[(to_time-from_time).total_seconds()][0]
-        random_list = list(np.random.randint(0,int(changetime), size = max_attack_trial))
+        random_list = list(np.random.choice(range(0,int(changetime)), size = max_attack_trial))
         random_list.sort()
+
         new_time_list = []
-        for i in range(0,len(random_list)-1):
-            if random_list[i+1] - random_list[i] > len(port_list):
-                new_time_list.append(random_list[i])
-        for new_time in new_time_list:
+
+        # for i in range(0,len(random_list)-1):
+        #     if random_list[i+1] - random_list[i] > len(client_port_range):
+        #         new_time_list.append(random_list[i])
+
+        # new_time_list -> 주어진 기간에 대해 언제 portscan을 할건지에 대한 시간 리스트
+        for new_time in random_list:
             try_thred = np.random.normal(0,1)
             if abs(try_thred)>1:
-                A_time = from_time + timedelta(seconds = int(new_time))
-                for j, _port in enumerate(port_list):
-                    _time = A_time + timedelta(seconds = 1)
+                each_time = packet_list[0][0]
+                _time = from_time + timedelta(seconds = int(new_time))
+                for j, _port in enumerate(client_port_range):
+                    _time = _time + timedelta(seconds = float(np.random.uniform(each_time, each_time*1.2,1)))
                     new_packet = copy.deepcopy(packet_list)
-                    new_packet[0][2] = _port
-                    ho_port = int(np.random.randint(new_packet[0][4][0],new_packet[0][4][1],size=1))
-                    new_packet[0][4] = ho_port
+                    new_packet[0][2] = int(np.random.randint(new_packet[0][2][0],new_packet[0][2][1],size=1))
+                    new_packet[0][4] = _port
                     action = time_plus_packet(_time, _time, new_packet, 1, Network_speed)
                     itertime_packet.append(action)
     return itertime_packet

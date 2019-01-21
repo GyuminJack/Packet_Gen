@@ -160,7 +160,7 @@ class Home():
                                 try_thred = np.random.normal(0,1)
                                 try:
                                     standard_packet_list = []
-                                    if abs(try_thred) > 1:
+                                    if abs(try_thred) > 4:
                                         for i, each_session in enumerate(in_home_device_set[device_name][function_name]['Session']['Stage']):
                                             fs = in_home_device_set[device_name][function_name]['Session'][each_session]
                                             attack_server_ip = change_to_ip(fs['Attack_Server'])
@@ -321,7 +321,7 @@ class Home():
                             for each_session in repeat_work["Stage"]:
                                 fs = repeat_work[each_session]
                                 dst_ip = change_to_ip(fs['Attack_Server'])
-                                client_port_range = np.random.randint(fs['Client_PortRange'][0],fs['Client_PortRange'][1],size = fs['Attack_number'])
+                                client_port_range = np.random.choice(range(fs['Client_PortRange'][0],fs['Client_PortRange'][1]),size = fs['Attack_number'])
                                 port_packet = make_function(device_name, function_name,  dst_ip, fs['Attack_PortRange'], 
                                             Device_MAC, client_port_range, fs['UPDN'], fs['Protocol'], fs['working_time'], fs['packet'])
                                 attack_trial = fs['max_attack_trial']
