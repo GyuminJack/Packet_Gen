@@ -2,8 +2,8 @@
     "AP":{
         "ap_port_scanning" : {
             "Task" : "Port_scan",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Attack_Server" : "142.212.231.0/24",
                     "Attack_PortRange" : [1000,10000],
                     "Attack_number" : 100,
@@ -14,7 +14,7 @@
                     "packet" : [2],
                     "max_attack_trial" : 100
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         }
         
@@ -22,8 +22,8 @@
     "SK_NUGU" : {
         "s_botnet" : {
             "Task" : "DDOS",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "13.123.0.0/24",
                     "PortRange" : [0,65535],
                     "UPDN" : ["UP","UP","UP"],
@@ -31,13 +31,13 @@
                     "time" : [1,50,50],
                     "packet" : [1,5,5]
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         },        
         "s_weather_check" : {
             "Task" : "Common",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "52.95.252.0/24",
                     "PortRange" : [300,301],
                     "UPDN" : ["UP","DN","UP","DN"],
@@ -45,13 +45,13 @@
                     "time" : [1,1,1,2],
                     "packet" : [2,2,2,4]
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         },
         "s_traffic_check" : {
             "Task" : "Common",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "52.95.252.0/24",
                     "PortRange" : [300,301],
                     "UPDN" : ["UP","DN","UP","DN"],
@@ -59,13 +59,13 @@
                     "time" : [1,1,1,2],
                     "packet" : [2,2,2,4]
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         },
         "s_find_info" : {
             "Task" : "Common",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "52.95.252.0/24",
                     "PortRange" : [800,810],
                     "UPDN" : ["UP","DN","UP","DN"],
@@ -73,13 +73,13 @@
                     "time" : [1,1,1,3],
                     "packet" : [2,2,2,3]
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         },
         "s_firmware_check" : {
             "Task" : "Repeatedly",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "52.95.252.0/24",
                     "PortRange" : [1890,1900],
                     "UPDN" : ["UP","DN"],
@@ -89,13 +89,13 @@
                     "interval1" : 1440,
                     "interval2" : "min"
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         },
         "s_music_stream" : {
             "Task" : "Streaming",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "13.125.0.0/16",
                     "PortRange" : [5000,5010],
                     "UPDN" : ["UP","DN"],
@@ -112,13 +112,13 @@
                     "packet" : [2,6],
                     "standard_trial_time_min" : 3
                 },
-                "Routine" : ["Session1","Streaming"]
+                "Stage" : ["Connection1","Streaming"]
             }
         },
         "s_radio_stream" : {
             "Task" : "Streaming",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "13.125.0.0/16",
                     "PortRange" : [5000,5010],
                     "UPDN" : ["UP","DN"],
@@ -135,15 +135,15 @@
                     "packet" : [2,6,6],
                     "standard_trial_time_min" : 1
                 },
-                "Routine" : ["Session1","Streaming"]
+                "Stage" : ["Connection1","Streaming"]
             }
         }
     },
     "Home_camera" : {
         "Hc_Normal" : {
             "Task" : "Repeatedly",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "52.119.185.54",
                     "PortRange" : [5000,5050],
                     "UPDN" : ["UP","DN"],
@@ -153,13 +153,13 @@
                     "interval1" : 5,
                     "interval2" : "seconds"
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         },
         "Hc_view_state" : {
             "Task" : "Streaming",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "192.168.200.18",
                     "PortRange" : [1,65535],
                     "home_specific_port_connect" : [9010,9011],
@@ -187,15 +187,15 @@
                     "time" : [1,1],
                     "packet" : [2,2]
                 },
-                "Routine" : ["Session1","Streaming","Session2"]
+                "Stage" : ["Connection1","Streaming","Session2"]
             }
         }
     },
     "Smart_airconditioner" : {
         "Sa_firmware_check" : {
             "Task" : "Repeatedly",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "16.234.223.153",
                     "PortRange" : [1300,1310],
                     "UPDN" : ["UP","DN"],
@@ -205,13 +205,13 @@
                     "interval1" : 2,
                     "interval2" : "min"
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         },
         "Sa_upload" : {
             "Task" : "Repeatedly",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "16.234.223.231",
                     "PortRange" : [1000,1001],
                     "UPDN" : ["UP","DN"],
@@ -221,15 +221,15 @@
                     "interval1" : 1,
                     "interval2" : "min" 
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         }
     },
     "Smart_refregerator" : {
         "Sr_firmware_check" : {
             "Task" : "Repeatedly",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "17.234.223.123",
                     "PortRange" : [2910,2911],
                     "UPDN" : ["UP","DN"],
@@ -239,13 +239,13 @@
                     "interval1" : 1,
                     "interval2" : "min"
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         },
         "Sr_view_state" : {
             "Task" : "Streaming",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "17.234.0.0/16",
                     "home_specific_port_connect" : [7010,7011],
                     "PortRange" : [0,65535],
@@ -264,13 +264,13 @@
                     "packet" : [5,5,5,5,5,5],
                     "standard_trial_time_min" : 1
                 },
-                "Routine" : ["Session1","Streaming"]
+                "Stage" : ["Connection1","Streaming"]
             }
         },
         "Sr_searching" : {
             "Task" : "Common",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "132.214.243.0/24",
                     "PortRange" : [2002,2003],
                     "UPDN" : ["UP","DN"],
@@ -286,7 +286,7 @@
                     "time" : [1,5],
                     "packet" : [2,4]
                 },
-                "Routine" : ["Session1", "Session2", "Session2"]
+                "Stage" : ["Connection1", "Session2", "Session2"]
             }
         }
     }

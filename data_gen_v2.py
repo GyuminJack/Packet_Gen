@@ -11,8 +11,8 @@ import ipaddress
 
 def change_to_ip(_ip):
     new_list = [str(ip) for ip in ipaddress.IPv4Network(_ip)]
-    total = random.choice(new_list)
-    return total
+    selected_ip = random.choice(new_list)
+    return selected_ip
 
 # 각 user를 define 하기 위한 class
 class user_type:
@@ -164,8 +164,8 @@ class Home():
                             if abs(try_thred) > 1.5:
                                 standard_packet_list = []
                                 try:
-                                    for i, each_session in enumerate(in_home_device_set[device_name][function_name]['Sessions']['Routine']):
-                                        fs = in_home_device_set[device_name][function_name]['Sessions'][each_session]
+                                    for i, each_session in enumerate(in_home_device_set[device_name][function_name]['Session']['Stage']):
+                                        fs = in_home_device_set[device_name][function_name]['Session'][each_session]
                                         try:
                                             srcport = np.random.randint(fs["home_specific_port_connect"][0],fs["home_specific_port_connect"][1],size=10)
                                         except:
@@ -176,18 +176,18 @@ class Home():
                                         standard_packet_list += make_function(device_name, function_name, Device_Mac, srcport[i], 
                                                             dst_ip, dstport[i], fs['UPDN'], fs['Protocol'],fs['working_time'], fs['packet'])
                                 except:
-                                    print("{} has no routine".format[function_name])
+                                    print("{} has no stage".format[function_name])
                                 device_packet_dict[function_name] = standard_packet_list
 
                         # max_stream_time -> 스트리밍 서비스 구현시 최대 재생시간을 조정해야 다운로드 받고 대기하는 시간 계산가능.
                         elif (in_home_device_set[device_name][function_name]["Task"] == "Streaming") and (max_stream_time>0):
                             standard_packet_list = []
                             try:
-                                for i, each_session in enumerate(in_home_device_set[device_name][function_name]['Sessions']['Routine']):
-                                    # 'Routine'안에 스트리밍 서비스의 세션 커넥트 과정이 설명되어있음. 그 순서대로 패킷을 생성 
+                                for i, each_session in enumerate(in_home_device_set[device_name][function_name]['Session']['Stage']):
+                                    # 'Stage'안에 스트리밍 서비스의 세션 커넥트 과정이 설명되어있음. 그 순서대로 패킷을 생성 
                                     # 스트리밍 다운로드를 실행하기 전 패킷
                                     if each_session != "Streaming":
-                                        fs = in_home_device_set[device_name][function_name]['Sessions'][each_session]
+                                        fs = in_home_device_set[device_name][function_name]['Session'][each_session]
                                         try:
                                             srcport = np.random.randint(fs["home_specific_port_connect"][0],fs["home_specific_port_connect"][1],size=10) # 특정 포트 선택
                                         except:
@@ -200,7 +200,7 @@ class Home():
                                     # 스트리밍 다운로드를 하는 패킷
                                     elif each_session == 'Streaming':
                                         stream_packet_list = []
-                                        fs = in_home_device_set[device_name][function_name]['Sessions'][each_session]
+                                        fs = in_home_device_set[device_name][function_name]['Session'][each_session]
                                         # 곡 종료 후 대기 상황을 만들어 주기 위해 config에 일시적으로 추가하는 패킷 -> 마지막에 패킷크기가 0인것은 삭제되므로 
                                         # 이때 만들어 진 패킷은 삭제됨.
                                         fs['working_time'].append(1)
@@ -276,9 +276,9 @@ class Home():
             for function_name in in_home_device_set[device_name]:
                 if function_name not in ['Device IP','Device Portrange',"MAC_Addr"]:
                     if in_home_device_set[device_name][function_name]["Task"] == "Repeatedly":
-                        repeat_work = in_home_device_set[device_name][function_name]["Sessions"]
+                        repeat_work = in_home_device_set[device_name][function_name]["Session"]
                         try:
-                            for each_session in repeat_work["Routine"]:
+                            for each_session in repeat_work["Stage"]:
                                 fs = repeat_work[each_session]
                                 dst_ip = change_to_ip(fs['Server'])
                                 firmware_packet = make_function(device_name, function_name, Device_MAC, Device_Portrange, 
@@ -293,9 +293,9 @@ class Home():
                             traceback.print_exc()
                             print("error")
                     elif in_home_device_set[device_name][function_name]["Task"] == "Port_scan":
-                        repeat_work = in_home_device_set[device_name][function_name]["Sessions"]
+                        repeat_work = in_home_device_set[device_name][function_name]["Session"]
                         try:
-                            for each_session in repeat_work["Routine"]:
+                            for each_session in repeat_work["Stage"]:
                                 fs = repeat_work[each_session]
                                 dst_ip = change_to_ip(fs['Attack_Server'])
                                 attack_port_range = np.random.randint(fs['Attack_PortRange'][0],fs['Attack_PortRange'][1],size = fs['Attack_number'])

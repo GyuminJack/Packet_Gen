@@ -2,8 +2,8 @@
     "Anomaly" : { 
         "Port_scanning" : {
             "Task" : "Out-In",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "out_Attack_Server" : "13.123.0.0/24",
                     "in_Attack_PortRange" : [0,5000],
                     "UPDN" : ["DN"],
@@ -11,7 +11,7 @@
                     "time" : [1],
                     "packet" : [1]
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         }
     }

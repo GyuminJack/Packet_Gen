@@ -2,8 +2,8 @@
     "SK_NUGU" : {      
         "s_weather_check" : {
             "Task" : "Common",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "52.95.252.0/24",
                     "PortRange" : [300,301],
                     "UPDN" : ["UP","DN","UP","DN"],
@@ -11,13 +11,13 @@
                     "working_time" : [0.15,0.1,0.1,1],
                     "packet" : [2,2,2,4]
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }   
         },
         "s_firmware_check" : {
             "Task" : "Repeatedly",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "52.95.252.0/24",
                     "PortRange" : [1890,1900],
                     "UPDN" : ["UP","DN"],
@@ -27,13 +27,13 @@
                     "interval1" : 1440,
                     "interval2" : "min"
                 },
-                "Routine" : ["Session1"]
+                "Stage" : ["Connection1"]
             }
         },
         "s_music_stream" : {
             "Task" : "Streaming",
-            "Sessions" : {
-                "Session1" : {
+            "Session" : {
+                "Connection1" : {
                     "Server" : "13.125.0.0/16",
                     "PortRange" : [5000,5010],
                     "UPDN" : ["UP","DN"],
@@ -50,8 +50,8 @@
                     "packet" : [2,6],
                     "standard_trial_time_min" : 3
                 },
-                "Routine" : ["Session1","Streaming"]
+                "Stage" : ["Connection1","Streaming"]
             }
-        }
+        } 
     }
 }
