@@ -7,37 +7,12 @@ import mac_address_maker
 import traceback
 import random
 #ip change
-def change_to_ip(_ip):
-    class_dict = {"0":"z","8":"A","16":"B","24":"C"}
-    _split_ip = re.split("[./]",_ip)
-    if len(_split_ip) == 4:
-	    return _ip
-    _base = _split_ip[:4]	
-    for i in range(4):
-    	_base[i] = _base[i]
-    _class = class_dict[_split_ip[-1]]
-    if _class == "z":
-    	first = str(int(np.random.randint(int(_base[0]),256)))
-    	second = str(int(np.random.randint(int(_base[1]),256)))
-    	third = str(int(np.random.randint(int(_base[2]),256)))
-    	fourth = str(int(np.random.randint(int(_base[3]),256)))
-    	total = ".".join([first, second, third, fourth])
-    elif _class == "A":
-    	second = str(int(np.random.randint(int(_base[1]),256)))
-    	third = str(int(np.random.randint(int(_base[2]),256)))
-    	fourth = str(int(np.random.randint(int(_base[3]),256)))
-    	total = ".".join([_base[0], second, third, fourth])
-    elif _class == "B":
-    	third = str(int(np.random.randint(int(_base[2]),256)))
-    	fourth = str(int(np.random.randint(int(_base[3]),256)))
-    	total = ".".join([_base[0], _base[1], third, fourth])
-    elif _class == "C":
-    	fourth = str(int(np.random.randint(int(_base[3]),256)))
-    	total = ".".join([_base[0], _base[1], _base[2], fourth])
-    return total
-        
-        
+import ipaddress
 
+def change_to_ip(_ip):
+    new_list = [str(ip) for ip in ipaddress.IPv4Network(_ip)]
+    total = random.choice(new_list)
+    return total
 
 # 각 user를 define 하기 위한 class
 class user_type:
@@ -63,11 +38,12 @@ mac_list = []
 home_Port_range = [i for i in range(1,65535)]
 
 class Home():
-    def __init__(self, HOME_NAME, IP, PORT_RANGE):
-        self.Home_name = HOME_NAME
-        self.IP = IP
+    def __init__(self, HOME_NAME, IP, PORT_RANGE, Network_speed):
         global IP_range
         global mac_list
+        self.Home_name = HOME_NAME
+        self.IP = IP
+        self.Network_speed = Network_speed
         self.PORT_RANGE = PORT_RANGE
         self.Mac_Address_list = mac_address_maker.mac_address_maker(300)
     # 개별 Device들의 설정정보를 불러오고 IP / Port 설정
@@ -158,7 +134,6 @@ class Home():
                         all_user_pattern.append([action_time, finish_time, action, trial, max_stream_time])
                     action_time += timedelta(days=1)
         # all_user_pattern : home에 입력된 user들의 주어진 기간에 대한 모든 행동의 리스트
-        # pprint(all_user_pattern)
         print("User pattern Making finish")
 
         # Device의 기능별 기본 단위 패킷을 생성
@@ -199,12 +174,11 @@ class Home():
                                         dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
                                         dst_ip = change_to_ip(fs['Server'])
                                         standard_packet_list += make_function(device_name, function_name, Device_Mac, srcport[i], 
-                                                            dst_ip, dstport[i], fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
+                                                            dst_ip, dstport[i], fs['UPDN'], fs['Protocol'],fs['working_time'], fs['packet'])
                                 except:
                                     print("{} has no routine".format[function_name])
                                 device_packet_dict[function_name] = standard_packet_list
-                        #####################################################################################
-                        # 코드 정리 다시 시작.
+
                         # max_stream_time -> 스트리밍 서비스 구현시 최대 재생시간을 조정해야 다운로드 받고 대기하는 시간 계산가능.
                         elif (in_home_device_set[device_name][function_name]["Task"] == "Streaming") and (max_stream_time>0):
                             standard_packet_list = []
@@ -221,7 +195,7 @@ class Home():
                                         dstport = np.random.randint(fs['PortRange'][0],fs['PortRange'][1],size = 1000)
                                         dst_ip = change_to_ip(fs['Server'])
                                         new_task = make_function(device_name, function_name ,Device_Mac, srcport[i], 
-                                                            dst_ip, dstport[i], fs['UPDN'],fs['Protocol'], fs['time'], fs['packet'])
+                                                            dst_ip, dstport[i], fs['UPDN'],fs['Protocol'], fs['working_time'], fs['packet'])
                                         standard_packet_list += new_task
                                     # 스트리밍 다운로드를 하는 패킷
                                     elif each_session == 'Streaming':
@@ -229,7 +203,7 @@ class Home():
                                         fs = in_home_device_set[device_name][function_name]['Sessions'][each_session]
                                         # 곡 종료 후 대기 상황을 만들어 주기 위해 config에 일시적으로 추가하는 패킷 -> 마지막에 패킷크기가 0인것은 삭제되므로 
                                         # 이때 만들어 진 패킷은 삭제됨.
-                                        fs['time'].append(1)
+                                        fs['working_time'].append(1)
                                         fs['UPDN'].append("UP")
                                         fs['Protocol'].append("TCP")
                                         fs['packet'].append(0)
@@ -266,12 +240,12 @@ class Home():
 
                                         for song_play_time in song_play_time_list:                                           
                                             if song_play_time >= 60:
-                                                fs['time'][2] = song_play_time - (fs['time'][0]+fs['time'][1])
+                                                fs['working_time'][2] = song_play_time - (fs['working_time'][0]+fs['working_time'][1])
                                                 new_task = make_function(device_name, function_name, Device_Mac, srcport,
-                                                                    dst_ip, dstport, fs['UPDN'], fs['Protocol'],fs['time'], fs['packet'])
+                                                                    dst_ip, dstport, fs['UPDN'], fs['Protocol'],fs['working_time'], fs['packet'])
 
                                             stream_packet_list += new_task
-                                        fs['time'].pop()
+                                        fs['working_time'].pop()
                                         fs['UPDN'].pop()
                                         fs['Protocol'].pop()
                                         fs['packet'].pop()
@@ -280,15 +254,16 @@ class Home():
                                 traceback.print_exc()
                             device_packet_dict[function_name] = standard_packet_list
             return device_packet_dict            
-
+        
         # 사용자 정의에 의한 패킷 제너레이팅
         for s_time, f_time, work, max_trials, max_stream_time in all_user_pattern:
             try:
                 work = re.sub("[_]+[0-9]","",work) # 중복 작업을 위한 뒷부분에 숫자 붙인 버전.
-                made_packet = time_plus_packet(s_time, f_time, device_make_packet(max_stream_time)[work], max_trials)
+                # device_make_packet(max_stream_time)[work] -> 개별 작업에 대한 기본 패킷 단위
+                made_packet = time_plus_packet(s_time, f_time, device_make_packet(max_stream_time)[work], max_trials, self.Network_speed)
                 all_packet_list.append(made_packet)
             except:
-                pass
+                traceback.print_exc()
 
         print("Common / Streaming Task Finish")
         print("Repeatedly Task Start")
@@ -308,12 +283,12 @@ class Home():
                                 dst_ip = change_to_ip(fs['Server'])
                                 firmware_packet = make_function(device_name, function_name, Device_MAC, Device_Portrange, 
                                                                 dst_ip, fs['PortRange'], 
-                                                                fs['UPDN'], fs['Protocol'], fs['time'], fs['packet'])
+                                                                fs['UPDN'], fs['Protocol'], fs['working_time'], fs['packet'])
                                 interval_time = fs['interval1']
                                 interval_key = fs['interval2']
                                 all_packet_list += itertime_action(from_date, to_date,
                                                                 interval_time, interval_key,
-                                                                firmware_packet, fs['packet'], device_name, function_name)
+                                                                firmware_packet, fs['packet'], device_name, function_name,self.Network_speed)
                         except:
                             traceback.print_exc()
                             print("error")
@@ -326,11 +301,11 @@ class Home():
                                 attack_port_range = np.random.randint(fs['Attack_PortRange'][0],fs['Attack_PortRange'][1],size = fs['Attack_number'])
                                 port_packet = make_function(device_name, function_name, Device_MAC, attack_port_range, 
                                                                 dst_ip, fs['PortRange'], 
-                                                                fs['UPDN'], fs['Protocol'], fs['time'], fs['packet'])
+                                                                fs['UPDN'], fs['Protocol'], fs['working_time'], fs['packet'])
                                 attack_trial = fs['max_attack_trial']
                                 all_packet_list += itertime_action(from_date, to_date, 
                                                                 attack_trial, "seconds",
-                                                                port_packet, fs['packet'], device_name, "Port_scan")
+                                                                port_packet, fs['packet'], device_name, "Port_scan",self.Network_speed)
                         except:
                             traceback.print_exc()
         print("Repeatedly Task Finish")
@@ -367,7 +342,9 @@ def home_set():
         Home_date_list.append([from_date, to_date])
         Device_list = home_config[k1]['Devices']
         User_list = home_config[k1]['User_setting']
-        make_home = Home(Home_name, IP, PORT_RANGE)
+        Network_speed = home_config[k1]['Network_speed_per_sec']
+        # packet make
+        make_home = Home(Home_name, IP, PORT_RANGE, Network_speed)
         make_home.device_setting(Device_list)
         make_home.user_setting(User_list)
         Home_class_list.append(make_home)
@@ -384,7 +361,10 @@ if __name__ == "__main__":
     outdir = './PacketGen'
     if not os.path.exists(outdir):
         os.mkdir(outdir)
-    home_list, home_packet_dict, Home_date_list = home_set()
+    # Read Configurations
+    # 개별 home에 대한 패킷 생성
+    home_list, home_packet_dict, Home_date_list = home_set() 
+    # 저장을 위한 후처리
     for i, each_home in enumerate(home_list):
         home_name = each_home.Home_name
         df = pd.DataFrame(home_packet_dict[home_name], 
@@ -406,11 +386,11 @@ if __name__ == "__main__":
             else:
                 version = 0
             return version
-        df['version'] = df[['Time','vendor']].apply(update_version, axis = 1)
+        # df['version'] = df[['Time','vendor']].apply(update_version, axis = 1)
         df = df[df.PacketSIZE>0]
         df['PacketSIZE'] = df['PacketSIZE'].apply(math.ceil)
         outname = "{}.log".format(home_name)
-        fullname = os.path.join(outdir, outname)    
+        fullname = os.path.join(outdir, outname)   
         df.to_csv(fullname,index=False)
     
         

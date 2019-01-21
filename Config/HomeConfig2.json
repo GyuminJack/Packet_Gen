@@ -1,0 +1,23 @@
+{
+    "Home1_solo" : {
+        "IP" : "192.168.0.0/24",
+        "from_date" : "2018,1,1,0,0,0",
+        "to_date" : "2018,3,1,0,0,0",
+        "Devices" : ["SK_NUGU","AP"],
+        "User_setting" : ["USER1"]
+    },
+    "Home2_duo" : {
+        "IP" : "192.168.0.0/24",
+        "from_date" : "2018,1,1,0,0,0",
+        "to_date" : "2018,3,1,0,0,0",
+        "Devices" : ["SK_NUGU","AP"],
+        "User_setting" : ["USER2","USER3"]
+    },
+    "Home3_familiy" : {
+        "IP" : "192.168.0.0/24",
+        "from_date" : "2018,1,1,0,0,0",
+        "to_date" : "2018,3,1,0,0,0",
+        "Devices" : ["SK_NUGU","AP"],
+        "User_setting" : ["USER4"]
+    }
+}

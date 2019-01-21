@@ -4,6 +4,12 @@
             "s_weather_check_1" : {
                 "start_time": 710, 
                 "finish_time": 720, 
+                "max_trial" : 1},
+
+            "s_music_stream_1" : {
+                "start_time": 2000, 
+                "finish_time" : 2100,
+                "max_stream_time" : 30,
                 "max_trial" : 1}
         }
     }

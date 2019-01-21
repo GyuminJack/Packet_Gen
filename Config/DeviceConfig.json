@@ -8,10 +8,49 @@
                     "PortRange" : [300,301],
                     "UPDN" : ["UP","DN","UP","DN"],
                     "Protocol" :["TCP","TCP","TCP","TCP"],
-                    "time" : [1,1,1,2],
+                    "working_time" : [0.15,0.1,0.1,1],
                     "packet" : [2,2,2,4]
                 },
                 "Routine" : ["Session1"]
+            }   
+        },
+        "s_firmware_check" : {
+            "Task" : "Repeatedly",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "52.95.252.0/24",
+                    "PortRange" : [1890,1900],
+                    "UPDN" : ["UP","DN"],
+                    "Protocol" :["TCP","TCP"],
+                    "working_time" : [0.1,0.1],
+                    "packet" : [2,2],
+                    "interval1" : 1440,
+                    "interval2" : "min"
+                },
+                "Routine" : ["Session1"]
+            }
+        },
+        "s_music_stream" : {
+            "Task" : "Streaming",
+            "Sessions" : {
+                "Session1" : {
+                    "Server" : "13.125.0.0/16",
+                    "PortRange" : [5000,5010],
+                    "UPDN" : ["UP","DN"],
+                    "Protocol" :["TCP","TCP"],
+                    "working_time" : [0.1,1],
+                    "packet" : [2,2]
+                },
+                "Streaming" : {
+                    "Server" : "52.219.60.0/24",
+                    "PortRange" : [5060,5601],
+                    "UPDN" : ["UP","DN"],
+                    "Protocol" :["TCP","TCP"],
+                    "working_time" : [1,3],
+                    "packet" : [2,6],
+                    "standard_trial_time_min" : 3
+                },
+                "Routine" : ["Session1","Streaming"]
             }
         }
     }
