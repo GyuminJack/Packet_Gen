@@ -41,7 +41,6 @@
                 "finish_time" : 2300,
                 "max_stream_time" : 30,
                 "max_trial" : 1}
-
         },
         "weekend" : {
             "s_music_stream" : {

@@ -151,7 +151,6 @@ class Home():
                 Device_port = int(np.random.choice(Device_Server_PortRange))
                 for function_name in in_home_device_set[device_name]:
                     if function_name not in ['Device IP','Device_PortRange','MAC_Addr']:
-                        # 모든 동작을 for loop로 확인함.
                         # Common, DDOS : 주어진 시간에 정해진 동작을 단일 처리.
                         # Streaming : 주어진 시간에 업로드와 다운로드를 지속적으로 반복.
                         if in_home_device_set[device_name][function_name]["Task"] in ["Common","DDOS"]:
@@ -164,7 +163,7 @@ class Home():
                                         for i, each_session in enumerate(in_home_device_set[device_name][function_name]['Session']['Stage']):
                                             fs = in_home_device_set[device_name][function_name]['Session'][each_session]
                                             attack_server_ip = change_to_ip(fs['Attack_Server'])
-                                            attack_server_port = int(np.random.randint(fs['Attack_PortRange'][0],fs['Attack_PortRange'][1],size = 1))
+                                            attack_server_port = np.random.choice(range(fs['Attack_PortRange'][0],fs['Attack_PortRange'][1]),size = 1)[0]
                                             attack_client_port_range = list(range(fs["Client_PortRange"][0],fs["Client_PortRange"][1]))
                                             random.shuffle(attack_client_port_range)
                                             time_change = [float(np.random.uniform(i,i*1.2,1)) for i in fs['working_time']]
@@ -184,14 +183,14 @@ class Home():
                                         try:
                                             # 클라이언트가 특정 포트로 통신을 받아야 되는 경우 사용.
                                             # 홈 카메라의 경우 9010번 포트로만 통신을 함.(일종의 서버로 사용되기 때문)
-                                            srcport = np.random.randint(fs["Client_specific_port"][0],fs["Client_specific_port"][1],size=10)
+                                            srcport = np.random.choice(range(fs["Client_specific_port"][0],fs["Client_specific_port"][1]),size=10)
                                         except:
                                             # 클라이언트 포트 중 특정 포트가 선택되지 않을 경우 클라이언트 쪽에서 아무 포트나 사용함.
                                             # self.PORT_RANGE -> 홈에 디폴트로 설정된 port range [0,65535]
-                                            srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000)
+                                            srcport = np.random.choice(range(self.PORT_RANGE[0],self.PORT_RANGE[1]),size = 1000)
 
                                         dst_ip = change_to_ip(fs['Server'])
-                                        dstport = np.random.randint(fs['Server_PortRange'][0],fs['Server_PortRange'][1],size = 1000)
+                                        dstport = np.random.choice(range(fs['Server_PortRange'][0],fs['Server_PortRange'][1]),size = 1000)
                                         time_change = [float(np.random.uniform(i,i*1.2,1)) for i in fs['working_time']]
                                         standard_packet_list += make_function(device_name, function_name, Device_Mac, srcport[i], 
                                                             dst_ip, dstport[i], fs['UPDN'], fs['Protocol'],time_change, fs['packet'])
@@ -210,14 +209,14 @@ class Home():
                                     if each_session != "Streaming":
                                         fs = in_home_device_set[device_name][function_name]['Session'][each_session]
                                         try:
-                                            srcport = np.random.randint(fs["Client_specific_port"][0],fs["Client_specific_port"][1],size=10) # 특정 포트 선택
+                                            srcport = np.random.choice(range(fs["Client_specific_port"][0],fs["Client_specific_port"][1]),size=1)[0] # 특정 포트 선택
                                         except:
-                                            srcport = np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1000) # 아무거나 선택
+                                            srcport = np.random.choice(range(self.PORT_RANGE[0],self.PORT_RANGE[1]),size = 1)[0] # 아무거나 선택
                                         dst_ip = change_to_ip(fs['Server'])
-                                        dstport = np.random.randint(fs['Server_PortRange'][0],fs['Server_PortRange'][1],size = 1000)
+                                        dstport = np.random.choice(range(fs['Server_PortRange'][0],fs['Server_PortRange'][1]),size = 1)[0]
                                         
-                                        new_task = make_function(device_name, function_name ,Device_Mac, srcport[i], 
-                                                            dst_ip, dstport[i], fs['UPDN'],fs['Protocol'], fs['working_time'], fs['packet'])
+                                        new_task = make_function(device_name, function_name ,Device_Mac, srcport, 
+                                                            dst_ip, dstport, fs['UPDN'],fs['Protocol'], fs['working_time'], fs['packet'])
                                         standard_packet_list += new_task
                                     # 스트리밍 다운로드를 하는 패킷
                                     elif each_session == 'Streaming':
@@ -230,11 +229,11 @@ class Home():
                                         fs['Protocol'].append("TCP")
                                         fs['packet'].append(0)
                                         try:
-                                            srcport = np.random.randint(fs["Client_specific_port"][0],fs["Client_specific_port"][1],size=1)[0]
+                                            srcport = np.random.choice(range(fs["Client_specific_port"][0],fs["Client_specific_port"][1]),size=1)[0]
                                         except:    
-                                            srcport = list(np.random.randint(self.PORT_RANGE[0],self.PORT_RANGE[1],size = 1))[0]
+                                            srcport = np.random.choice(range(self.PORT_RANGE[0],self.PORT_RANGE[1]),size = 1)[0]
                                         
-                                        dstport = list(np.random.randint(fs['Server_PortRange'][0],fs['Server_PortRange'][1],size = 1))[0]
+                                        dstport = np.random.choice(range(fs['Server_PortRange'][0],fs['Server_PortRange'][1]),size = 1)[0]
                                         # 평균 곡 재생시간 설정. - 난수 생성
                                         song_play_seconds = int(fs['standard_trial_time_min']*60) + int(random.uniform(-10, 70))
                                         # 총 재생시간 설정
@@ -408,7 +407,7 @@ if __name__ == "__main__":
             else:
                 version = 0
             return version
-        # df['version'] = df[['Time','vendor']].apply(update_version, axis = 1)
+        df['version'] = df[['Time','vendor']].apply(update_version, axis = 1)
         df = df[df.PacketSIZE>0]
         df['PacketSIZE'] = df['PacketSIZE'].apply(math.ceil)
         outname = "{}.log".format(home_name)
