@@ -87,6 +87,28 @@
                 },
                 "Stage" : ["Connection1","Streaming"]
             }
+        },
+        "s_radio_stream" : {
+            "Task" : "Streaming",
+            "Session" : {
+                "Connection1" : {
+                    "Server" : "13.125.0.0/16",
+                    "Server_PortRange" : [5000,5010],
+                    "UPDN" : ["UP","DN"],
+                    "Protocol" :["TCP","TCP"],
+                    "working_time" : [0.1,1],
+                    "packet" : [2,2]
+                },
+                "Radio" : {
+                    "Server" : "52.219.60.0/24",
+                    "Server_PortRange" : [5060,5601],
+                    "UPDN" : ["UP","DN"],
+                    "Protocol" :["TCP","TCP"],
+                    "working_time" : [0.1,0.1],
+                    "packet" : [0,3]
+                },
+                "Stage" : ["Connection1","Radio"]
+            }
         } 
     }
 }

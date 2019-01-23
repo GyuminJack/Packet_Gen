@@ -6,7 +6,7 @@ import os
 import mac_address_maker
 import traceback
 import random
-#ip change
+#subnet to ip
 import ipaddress
 
 def change_to_ip(_ip):
@@ -206,7 +206,7 @@ class Home():
                                 for i, each_session in enumerate(in_home_device_set[device_name][function_name]['Session']['Stage']):
                                     # 'Stage'안에 스트리밍 서비스의 세션 커넥트 과정이 설명되어있음. 그 순서대로 패킷을 생성 
                                     # 스트리밍 다운로드를 실행하기 전 패킷
-                                    if each_session != "Streaming":
+                                    if each_session not in ["Streaming","Radio"]:
                                         fs = in_home_device_set[device_name][function_name]['Session'][each_session]
                                         try:
                                             srcport = np.random.choice(range(fs["Client_specific_port"][0],fs["Client_specific_port"][1]),size=1)[0] # 특정 포트 선택
@@ -266,11 +266,42 @@ class Home():
                                                                     dst_ip, dstport, fs['UPDN'], fs['Protocol'],fs['working_time'], fs['packet'])
 
                                             stream_packet_list += new_task
+                                        
                                         fs['working_time'].pop()
                                         fs['UPDN'].pop()
                                         fs['Protocol'].pop()
                                         fs['packet'].pop()
+
                                         standard_packet_list += stream_packet_list
+                                    
+                                    elif each_session == 'Radio':
+                                        radio_packet_list = []
+                                        fs = in_home_device_set[device_name][function_name]['Session'][each_session]
+                                        # 곡 종료 후 대기 상황을 만들어 주기 위해 config에 일시적으로 추가하는 패킷 -> 마지막에 패킷크기가 0인것은 삭제되므로 
+                                        # 이때 만들어 진 패킷은 삭제됨.
+
+                                        try:
+                                            srcport = np.random.choice(range(fs["Client_specific_port"][0],fs["Client_specific_port"][1]),size=1)[0]
+                                        except:    
+                                            srcport = np.random.choice(range(self.PORT_RANGE[0],self.PORT_RANGE[1]),size = 1)[0]
+                                        
+                                        dstport = np.random.choice(range(fs['Server_PortRange'][0],fs['Server_PortRange'][1]),size = 1)[0]
+
+                                        max_playing_seconds = int(max_stream_time*60) + int(random.uniform(-0.1*max_stream_time*60,0.1*max_stream_time*60))
+                                        # total_bytes = max_stream_time * 600000
+                                        # bytes_per_milsec = total_bytes / max_playing_seconds / 10
+                                        dst_ip = change_to_ip(fs['Server'])
+                                        
+
+                                        for i in range(int(max_playing_seconds)):                                   
+                                            new_task = make_function(device_name, function_name, Device_Mac, srcport,
+                                                                    dst_ip, dstport, fs['UPDN'], fs['Protocol'],fs['working_time'], fs['packet'])
+                                            for _task in new_task:
+                                                if _task[6] != 0:
+                                                    _task[6] = 14600
+                                            radio_packet_list += new_task
+                                        standard_packet_list += radio_packet_list
+
                             except:
                                 traceback.print_exc()
                             device_packet_dict[function_name] = standard_packet_list
